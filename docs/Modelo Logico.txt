@@ -1,0 +1,83 @@
+// Use DBML to define your database structure
+// Docs: https://dbml.dbdiagram.io/docs
+
+Table Etiqueta {
+  id_etiqueta integer [pk, increment]
+  nombre_etiqueta varchar(100)
+  descripcion text
+  color_hex varchar(7) // Ej: #FF5733
+}
+
+Table Producto {
+  id_producto integer [pk, increment]
+  nombre varchar(150)
+  cantidad decimal(10,2)
+  unidad_medida varchar(10)
+  descripcion text
+  precio decimal(10,2)
+  id_marca integer [not null]
+  indexes { (id_marca) }
+}
+
+Table producto_etiquetas {
+  producto_id integer [not null]
+  etiqueta_id integer [not null]
+  fecha_asignacion timestamp
+  indexes {
+    (producto_id, etiqueta_id) [pk] // clave compuesta
+    (producto_id)
+    (etiqueta_id)
+  }
+}
+
+Table Marca {
+  id_marca integer [pk, increment]
+  nombre varchar(100)
+  descripcion text
+  id_compania integer [not null]
+  indexes { (id_compania) }
+}
+
+Table Compania {
+  id_compania integer [pk, increment]
+  nombre varchar(100)
+  nit varchar(15)
+  direccion varchar(50)
+  telefono varchar(15)
+}
+
+Table Preventista {
+  id_preventista integer [pk, increment]
+  nombre varchar(100)
+  telefono varchar(15)
+  id_compania integer [not null]
+  indexes { (id_compania) }
+}
+
+Table Pedido {
+  id_pedido integer [pk, increment]
+  fecha_pedido timestamp
+  estado varchar(20) // considera enum o check
+  total decimal(15,2)
+  id_preventista integer [not null]
+  indexes { (id_preventista) }
+}
+
+Table pedido_productos{
+  pedido_id integer [not null]
+  producto_id integer [not null]
+  indexes {
+    (pedido_id, producto_id) [pk] // clave compuesta
+    (pedido_id)
+    (producto_id) 
+  }
+}
+
+Ref: producto_etiquetas.producto_id > Producto.id_producto
+Ref: producto_etiquetas.etiqueta_id > Etiqueta.id_etiqueta
+Ref: Compania.id_compania < Marca.id_compania [delete: cascade]
+Ref: Marca.id_marca < Producto.id_marca [delete: cascade]
+Ref: Compania.id_compania < Preventista.id_compania [delete: cascade, update: cascade]
+Ref: Preventista.id_preventista < Pedido.id_preventista [delete: cascade, update: cascade]
+Ref: Pedido.id_pedido < pedido_productos.pedido_id
+Ref: Producto.id_producto < pedido_productos.producto_id

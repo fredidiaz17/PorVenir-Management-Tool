@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Entorno virtual
+venv/
+.env
+
+# Configuración de IDE
+.idea/
+
+# Archivos del sistema
+.DS_Store
+
+# Otros comunes
+*.log
