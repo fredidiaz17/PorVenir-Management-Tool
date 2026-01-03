@@ -17,7 +17,7 @@ class Compania():
             query = """
                 INSERT INTO Compania (nombre) VALUES (%s)          
             """
-            values = (nombre)
+            values = nombre
             cursor.execute(query, values)
             conn.commit()
             logger.info(f'Compania {nombre} creado correctamente')
