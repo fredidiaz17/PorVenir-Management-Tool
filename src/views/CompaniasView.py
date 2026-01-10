@@ -6,9 +6,10 @@ import tkinter as tk
 from tkinter import messagebox
 import tkinter.ttk as ttk
 
-class CompaniaView:
+class CompaniaView(ctk.CTkFrame): # Es necesario esto para que sea "considerado" widget
 
     def __init__(self, master):
+        super().__init__(master)
         self.master = master
         self.frame = ctk.CTkFrame(master, width=400, height=400)
         self.frame.pack(fill= tk.BOTH)
