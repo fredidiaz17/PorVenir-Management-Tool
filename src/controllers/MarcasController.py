@@ -13,7 +13,7 @@ class MarcasController:
             return False
 
     @staticmethod
-    def crear_marcas(nombre, descripcion, id_compania):
+    def crear_marca(nombre, descripcion, id_compania):
 
         try:
             logger.info(f'Marca creada')
@@ -23,7 +23,7 @@ class MarcasController:
         return False
 
     @staticmethod
-    def actualizar_marcas(id_marca, nombre, descripcion, id_compania):
+    def actualizar_marca(id_marca, nombre, descripcion, id_compania):
 
         try:
             logger.info(f'Marca actualizada')
