@@ -96,7 +96,7 @@ class Marcas():
             if conn:
                 conn.close()
 
-    def eliminar(id_marca):
+    def eliminar_marca(id_marca):
         conn = None
         cursor = None
 
