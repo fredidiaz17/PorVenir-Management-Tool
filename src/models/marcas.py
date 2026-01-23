@@ -15,7 +15,7 @@ class Marcas():
             conn.start_transaction()
 
             query = """
-                INSERT INTO Marca (nombre, descripcion, id_compania) VALUES (%s, %s, %s)          
+                INSERT INTO marca (nombre, descripcion, id_compania) VALUES (%s, %s, %s)          
             """
             values = nombre, descripcion, id_compania
             cursor.execute(query, values)
@@ -44,7 +44,7 @@ class Marcas():
         try:
             conn = get_connection()
             cursor = conn.cursor(dictionary=True)
-            cursor.execute('SELECT * FROM Marcas')
+            cursor.execute("SELECT * FROM marca")
             marcas = cursor.fetchall()
             logger.info(f'{len(marcas)} marcas obtenidas correctamente')
             return marcas
@@ -72,7 +72,7 @@ class Marcas():
             conn.start_transaction()
 
             query = """
-                    UPDATE Marcas 
+                    UPDATE marca 
                     SET nombre = %s,
                         descripcion = %s,
                         id_compania = %s
@@ -96,7 +96,8 @@ class Marcas():
             if conn:
                 conn.close()
 
-    def eliminar_marca(id_marca):
+    @staticmethod
+    def eliminar_marca(id_marca,):
         conn = None
         cursor = None
 
@@ -107,7 +108,7 @@ class Marcas():
             conn.start_transaction()
 
             query = """
-                    DELETE FROM Marcas
+                    DELETE FROM marca
                         WHERE id_marca = %s
                     """
             values = (id_marca)
