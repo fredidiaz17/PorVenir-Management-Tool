@@ -5,7 +5,7 @@ from src.database.conexion import get_connection
 def test_crear_y_listar_marca_integration():
     nombre = "Marca Test Integración"
     descripcion = "Marca creada en test de integración"
-    id_compania = 1  # ya existe según lo que dijiste
+    id_compania = 1
 
     # Crear
     creada = MarcasController.crear_marca(nombre, descripcion, id_compania)
