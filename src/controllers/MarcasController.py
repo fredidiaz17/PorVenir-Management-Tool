@@ -3,11 +3,14 @@ from src.logger_config import logger
 
 class MarcasController:
 
+    def __init__(self, companias_controller):
+        self.companias_controller = companias_controller
+
     @staticmethod
     def listar_marcas():
         try:
             logger.info(f'Marccas listada')
-            return Marcas.listar_companias()
+            return Marcas.listar_marcas()
         except Exception:
             logger.Error(f'Error en controlador de listar companias')
             return False
@@ -41,3 +44,8 @@ class MarcasController:
         except Exception:
             logger.Error(f'Error en eliminar marca {id_marca}')
             return False
+
+    # ------Metodos de Compañias-------
+    @staticmethod
+    def listar_companias(self):
+        return self.companias_controller.listar_companias()
