@@ -155,25 +155,49 @@ class MarcasView(ctk.CTkFrame):
         self.tv_companias.selection_remove(self.tv_companias.selection())
 
     # ---------------- HELPERS PARA CARGA ----------------
-    def cargar_marcas(self, marcas):
+    def cargar_marcas(self, marcas=None):
+
+        if self.controller and not marcas:
+            marcas = self.controller.listar_marcas()
+
         self.tv_marcas.delete(*self.tv_marcas.get_children())
-        for m in marcas:
+
+        if len(marcas) == 0:
             self.tv_marcas.insert(
                 "",
                 "end",
-                iid=m["id_marca"],
-                values=(m["nombre"], m["descripcion"], m["id_compania"])
+                values=("No hay marcas",) + ("",) * (len(self.tv_marcas["columns"]) - 1)
             )
+        else:
+            for m in marcas:
+                self.tv_marcas.insert(
+                    "",
+                    "end",
+                    iid=m["id_marca"],
+                    values=(m["nombre"], m["descripcion"], m["id_compania"])
+                )
 
-    def cargar_companias(self, companias):
+    def cargar_companias(self, companias=None):
+
+        if self.controller and not companias:
+            companias = self.controller.listar_companias()
+
         self.tv_companias.delete(*self.tv_companias.get_children())
-        for c in companias:
+
+        if len(companias) == 0:
             self.tv_companias.insert(
                 "",
                 "end",
-                iid=c["id_compania"],
-                values=(c["nombre"],)
+                values = ("No hay compañias",) + ("",) * (len(self.tv_marcas["columns"]) - 1)
             )
+        else:
+            for c in companias:
+                self.tv_companias.insert(
+                    "",
+                    "end",
+                    iid=c["id_compania"],
+                    values=(c["nombre"],)
+                )
 
 
 # ---------------- TEST LOCAL DE LA VISTA ----------------
@@ -184,6 +208,8 @@ if __name__ == "__main__":
         def crear_marca(self, *args): print("crear", args)
         def actualizar_marca(self, *args): print("actualizar", args)
         def eliminar_marca(self, *args): print("eliminar", args)
+        def listar_marcas(self): return ()
+        def listar_companias(self): return ()
 
     app = ctk.CTk()
     app.geometry("900x500")

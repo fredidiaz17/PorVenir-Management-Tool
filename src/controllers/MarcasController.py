@@ -10,7 +10,7 @@ class MarcasController:
     def listar_marcas():
         try:
             logger.info(f'Marccas listada')
-            return Marcas.listar_companias()
+            return Marcas.listar_marcas()
         except Exception:
             logger.Error(f'Error en controlador de listar companias')
             return False
