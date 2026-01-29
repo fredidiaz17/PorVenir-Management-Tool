@@ -5,6 +5,7 @@ from views.CompaniasView import CompaniaView
 from views.MarcasView import MarcasView
 
 # Importar Controladores
+from controllers.CompaniasController import CompaniasController
 from controllers.MarcasController import MarcasController
 
 class App(ctk.CTk):
@@ -25,7 +26,8 @@ class App(ctk.CTk):
         self.container.columnconfigure(0, weight=1)
 
         # Controladores por vista
-        self.marca_controller = MarcasController()
+        self.compania_controller = CompaniasController()
+        self.marca_controller = MarcasController(self.compania_controller)
 
         # Diccionario de vistas
         self.vistas = {}
