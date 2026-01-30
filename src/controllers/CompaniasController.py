@@ -23,11 +23,11 @@ class CompaniasController:
         return False
 
     @staticmethod
-    def actualizar_compania(id, nombre):
+    def actualizar_compania(idCompania, nombre):
 
         try:
             logger.info(f'Compania actualizada')
-            return Compania.actualizar_compania([id, nombre])
+            return Compania.actualizar_compania([idCompania, nombre])
         except Exception:
             logger.Error(f'Error en actualizar compania {nombre}')
         return False # Si llega hasta acá, pues hubo excepción.
