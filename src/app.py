@@ -2,7 +2,11 @@ import customtkinter as ctk
 
 # Importar vistas
 from views.CompaniasView import CompaniaView
+from views.MarcasView import MarcasView
 
+# Importar Controladores
+from controllers.CompaniasController import CompaniasController
+from controllers.MarcasController import MarcasController
 
 class App(ctk.CTk):
     def __init__(self):
@@ -21,6 +25,10 @@ class App(ctk.CTk):
         self.container.rowconfigure(0, weight=1)
         self.container.columnconfigure(0, weight=1)
 
+        # Controladores por vista
+        self.compania_controller = CompaniasController()
+        self.marca_controller = MarcasController(self.compania_controller)
+
         # Diccionario de vistas
         self.vistas = {}
 
@@ -29,11 +37,15 @@ class App(ctk.CTk):
 
         # Mostrar vista inicial
         self.mostrar_vista("compañia")
+        self.mostrar_vista("marca")
+
 
     def _crear_vistas(self):
 
         # Instanciar todas las vistas y dejarlas listas...aunque solo haya una por ahora :v
         self.vistas["compañia"] = CompaniaView(self.container) #agregar app al inicializador de la clase
+        self.vistas["marca"] = MarcasView(parent=self.container, app= self, controller= self.marca_controller)
+
 
         # acomodandolas (grid), iterando por el diccionario (sus valores)
         for vista in self.vistas.values():
