@@ -1,208 +1,173 @@
-from customtkinter import CTkLabel
-
-from src.controllers.CompaniasController import CompaniasController as CompC
 import customtkinter as ctk
-import tkinter as tk
-from tkinter import messagebox
-import tkinter.ttk as ttk
-
-class CompaniaView(ctk.CTkFrame): # Es necesario esto para que sea "considerado" widget
-
-    def __init__(self, master):
-        super().__init__(master)
-        self.master = master
-        self.frame = ctk.CTkFrame(master, width=400, height=400)
-        self.frame.pack(fill= tk.BOTH)
-
-        self.id_compania_var = tk.IntVar()
-        self.nombre_compania_var = tk.StringVar()
-        self.compania_selected_var = tk.StringVar()
-
-        CTkLabel(self.frame, text= "--Menú de Creación de Companias--", anchor="center").grid(column=0, row=0, sticky=tk.W)
+from tkinter import ttk, messagebox
 
 
+MAX_NOMBRE_LEN = 100
+# Si, este codigo es un copia y pega de MarcasView, pero adaptado.
 
-        self._crear_entries()
-        self._crear_botones()
-        self._crear_table()
+class CompaniasView(ctk.CTkFrame):
+    def __init__(self, parent, app=None, controller=None):
+        super().__init__(parent)
 
+        self.app = app
+        self.controller = controller
 
-    def _crear_entries(self):
-        # Creando el frame contenedor de los entries
-        entries_frame = ctk.CTkFrame(self.frame)
-        entries_frame.grid(column=0, row= 1)
+        self._build_ui()
 
-        # entry y label de la ultima compañia seleccionada
-        self.label_selected = ctk.CTkLabel(entries_frame, text="Compañia seleccionada:")
-        self.label_selected.grid(column=0, row=0)
-        self.entry_selected = ctk.CTkEntry(entries_frame, textvariable=self.compania_selected_var, state='readonly')
-        self.entry_selected.grid(column=1, row=0)
+    # ---------------- UI ----------------
+    def _build_ui(self):
+        self.grid_columnconfigure((0, 1), weight=1)
+        self.grid_rowconfigure(1, weight=1)
 
-        # entry y label del nombre
-        self.label_nombre = tk.Label(entries_frame, text="Nombre de la Compania a crear:")
-        self.label_nombre.grid(column=0, row=1)
-        self.entry_nombre = tk.Entry(entries_frame, textvariable=self.nombre_compania_var)
-        self.entry_nombre.grid(column=1, row=1)
+        # ---------- TABLA ----------
+        tablas_frame = ctk.CTkFrame(self)
+        tablas_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
+        tablas_frame.grid_columnconfigure((0, 1), weight=1)
 
-        # Aunque no es entry, interactua con ellos: Boton de refresh/eliminar lo diligenciado
-        self.boton_refresh = ctk.CTkButton(entries_frame, text= "X",
-                                           text_color='black', border_width= 4 ,border_color= 'black', fg_color='red',
-                                           command= self.refrescar_campos)
-        self.boton_refresh.grid(column=2, row=1)
-
-    def _crear_botones(self):
-        # Creando el frame contenedor
-        botones_frame = ctk.CTkFrame(self.frame)
-        botones_frame.grid(column=0, row=2)
-
-        # Boton de Crear
-        self.boton_crear = ctk.CTkButton(
-            botones_frame,
-            text='Crear Compania',
-            command=self.crear_compania
+        frame_companias, self.tv_companias = self._create_treeview(
+            tablas_frame,
+            columns=("nombre",),
+            headers=("Nombre",),
+            title="Compañías"
         )
-        self.boton_crear.pack(side="left", padx=3)
+        frame_companias.grid(row=0, column=0, sticky="nsew", padx=5)
 
-        # Boton de Eliminar
-        self.boton_eliminar = ctk.CTkButton(
-            botones_frame,
-            text='Eliminar',
-            command=self.eliminar_compania,
-            fg_color= 'red'
-        )
-        self.boton_eliminar.pack(side="left", padx=3)
+        # ---------- FORM ----------
+        form_frame = ctk.CTkFrame(self)
+        form_frame.grid(row=1, column=0, sticky="nsew", padx=10, pady=10)
+        form_frame.grid_columnconfigure(1, weight=1)
 
-        # Boton de Actualizar
-        self.boton_actualizar = ctk.CTkButton(
-            botones_frame,
-            text='actualizar',
-            command=self.actualizar_compania,
-            fg_color='yellow',
-            text_color= 'black'
-        )
-        self.boton_actualizar.pack(side="left", padx=3)
-
-    # FUNCION PARA CREAR LA TABLA Y SU ESTILO
-    def _crear_table(self):
-        # Definiendo el estilo del table (tree)
-        style = ttk.Style()
-        style.configure( # Estilo del table
-            'Treeview',
-            rowheight=20
-        )
-        style.configure( # Estilo del encabezado, no puedo usar background
-            "Treeview.Heading",
-            foreground='black'
-        )
-
-        # Creando la tabla (tree)
-        columns = 'nombre'
-        self.tree = ttk.Treeview(
-            self.frame,
-            columns=columns,
-            show="headings",
-            style='Treeview'
-        )
-        self.tree.heading(
-            "nombre",
-            text="Listado de Companias",
-            anchor="center",
-            # style='Treeview.Heading'
-        )
-        self.tree.column("nombre",width= 150, stretch=True)
-        self.tree.grid(column=1, row=1)
+        ctk.CTkLabel(form_frame, text="Nombre").grid(row=0, column=0, sticky="w")
+        self.nombre_entry = ctk.CTkEntry(form_frame)
+        self.nombre_entry.grid(row=0, column=1, sticky="ew")
 
 
+        # ---------- BOTONES ----------
+        btn_frame = ctk.CTkFrame(self)
+        btn_frame.grid(row=0, column=1, sticky="n", padx=10, pady=10)
 
-        # Creando el vinculo de tabla-barra de texto
-        self.tree.bind("<Double-1>", self.seleccionar_compania)
-        self.rellenar_table()
+        ctk.CTkButton(btn_frame, text="Crear", command=self.crear).pack(fill="x", pady=2)
+        ctk.CTkButton(btn_frame, text="Actualizar", command=self.actualizar).pack(fill="x", pady=2)
+        ctk.CTkButton(btn_frame, text="Eliminar", command=self.eliminar).pack(fill="x", pady=2)
+        ctk.CTkButton(btn_frame, text="Limpiar", command=self.limpiar).pack(fill="x", pady=2)
 
+    def _create_treeview(self, parent, columns, headers, title):
+        frame = ctk.CTkFrame(parent)
+        frame.grid_rowconfigure(1, weight=1)
+        frame.grid_columnconfigure(0, weight=1)
 
-    # CRUD
+        ctk.CTkLabel(frame, text=title).grid(row=0, column=0, sticky="w")
 
-    def refrescar_tabla(self):
-        for item in self.tree.get_children():
-            self.tree.delete(item)
+        tv = ttk.Treeview(frame, columns=columns, show="headings", height=8)
+        for col, header in zip(columns, headers):
+            tv.heading(col, text=header)
+            tv.column(col, anchor="w")
 
-        self.refrescar_campos()
-        self.rellenar_table()
+        tv.grid(row=1, column=0, sticky="nsew")
 
-    def refrescar_campos(self):
-        self.nombre_compania_var.set('')
-        self.compania_selected_var.set('')
+        return frame, tv
 
-    def rellenar_table(self):
-        # Datos a insertar en el table: Listado de companias
-        # Todo: Los datos de la tabla se insertan incompletos, al menos cuando son mas de 1 palabra
-        self.companias = CompC.listar_companias() #Listamos companias
-        if len(self.companias) > 0:
-            for i in self.companias:
-                self.tree.insert('', 'end', iid= str(i['id_compania']), values=(i['nombre'],)) #El iid es un identificador por defecto de la fila, lo usaré para guardar el id del registra en la bd
+    # ---------------- VALIDACIÓN ----------------
+    def _validar_form(self):
+        nombre = self.nombre_entry.get().strip()
 
+        if not nombre:
+            messagebox.showerror("Error", "El campo no puede estar vacío")
+            return None
+
+        if len(nombre) > MAX_NOMBRE_LEN:
+            messagebox.showerror("Error", f"Nombre demasiado largo ({MAX_NOMBRE_LEN})")
+            return None
+
+        return nombre
+
+    # ---------------- ACCIONES ----------------
+    def crear(self):
+        data = self._validar_form()
+        if not data:
+            return
+
+        nombre = data
+
+        if self.controller:
+            self.controller.crear_compania(nombre)
+
+    def actualizar(self):
+        sel = self.tv_companias.selection()
+        if not sel:
+            messagebox.showerror("Error", "Seleccione una compañia")
+            return
+
+        data = self._validar_form()
+        if not data:
+            return
+
+        id_compania = sel[0]
+        nombre = data
+
+        if self.controller:
+            self.controller.actualizar_compania(id_compania, nombre)
+
+    def eliminar(self):
+        sel = self.tv_companias.selection()
+        if not sel:
+            messagebox.showerror("Error", "Seleccione una compañia")
+            return
+
+        if self.controller:
+            self.controller.eliminar_compania(sel[0])
+
+    def limpiar(self):
+        self.nombre_entry.delete(0, "end")
+
+        # opcional: limpiar selección de tablas
+        self.tv_companias.selection_remove(self.tv_companias.selection())
+
+    # ---------------- HELPERS PARA CARGA ----------------
+
+    def cargar_companias(self, companias=None):
+
+        if self.controller and not companias:
+            companias = self.controller.listar_companias()
+
+        self.tv_companias.delete(*self.tv_companias.get_children())
+
+        if len(companias) == 0:
+            self.tv_companias.insert(
+                "",
+                "end",
+                values = ("No hay compañias",) + ("",) * (len(self.tv_marcas["columns"]) - 1)
+            )
         else:
-            self.tree.insert('', 'end',values=['No hay companias existentes'])
-            self.tree.insert('', 'end', values=["Prueba a crear una ahora mismo"])
+            for c in companias:
+                self.tv_companias.insert(
+                    "",
+                    "end",
+                    iid=c["id_compania"],
+                    values=(c["nombre"],)
+                )
 
 
+# ---------------- TEST LOCAL DE LA VISTA ----------------
+if __name__ == "__main__":
+    ctk.set_appearance_mode("System")
 
-    def seleccionar_compania(self, event):
-        tree = event.widget
-        seleccion = tree.selection()
+    class DummyController:
+        def crear_marca(self, *args): print("crear", args)
+        def actualizar_marca(self, *args): print("actualizar", args)
+        def eliminar_marca(self, *args): print("eliminar", args)
+        def listar_marcas(self): return ()
+        def listar_companias(self): return ()
 
-        if seleccion:
-            item = tree.item(seleccion[0])
-            iid= seleccion[0]
-            id_compania = int(iid)
-            nombre_compania = item["values"][0]
+    app = ctk.CTk()
+    app.geometry("900x500")
 
+    view = CompaniasView(app, controller=DummyController())
+    view.pack(fill="both", expand=True)
 
-            self.id_compania_var.set(id_compania)
-            self.compania_selected_var.set(nombre_compania)
+    view.cargar_companias([
+        {"id_compania": "1", "nombre": "Comp A"},
+        {"id_compania": "2", "nombre": "Comp B"},
+    ])
 
-
-    def crear_compania(self):
-        nombre_compania = self.nombre_compania_var.get()
-
-        if nombre_compania == '' or len(nombre_compania) > 100:
-            tk.messagebox.showwarning('Dato invalido', 'El nombre de la compañia debe estar entre los 1 y 100 caracteres')
-        else:
-            if CompC.crear_compania(nombre_compania):
-                tk.messagebox.showinfo('Creación exitosa',f'Compania "{nombre_compania}" creada"')
-                self.refrescar_tabla()
-            else:
-                tk.messagebox.showerror('Error al crear','¡Ups!, parece que hubo un error en la creación de la Compañia')
-
-
-    def actualizar_compania(self):
-        nombre_compania = self.compania_selected_var.get()
-        id_comp = self.id_compania_var.get()
-
-        if id_comp == 0:
-            tk.messagebox.showwarning('Nada seleccionado',
-                                      'Selecciona una compañia desde la lista de compañias para actualizar')
-        elif nombre_compania == '' or len(nombre_compania) > 100:
-            tk.messagebox.showwarning('Dato invalido','El nombre de la compañia debe estar entre los 1 y 100 caracteres')
-        else:
-            if CompC.actualizar_compania(id_comp, nombre_compania):
-                tk.messagebox.showinfo('Actualización exitosa',f'Compañia "{nombre_compania}" actualizada')
-                self.refrescar_tabla()
-            else:
-                tk.messagebox.showerror('Error al actualizar','¡Ups!, parece que hubo un error en la actualización de la Compañia')
-
-    def eliminar_compania(self):
-        nombre_compania = self.compania_selected_var.get()
-        id_comp = self.id_compania_var.get()
-
-        if id_comp == 0:
-            tk.messagebox.showwarning('Nada seleccionado','Selecciona una compañia desde la lista de compañias para eliminar')
-        else:
-            if CompC.eliminar_compania(id_comp):
-                tk.messagebox.showinfo('Eliminacion exitosa',f'Compañia {nombre_compania} eliminada')
-                self.refrescar_tabla()
-            else:
-                tk.messagebox.showerror('Error al eliminar','¡Ups!, parece que hubo un error en la eliminación de la Compañia')
-
-
-
-
+    app.mainloop()
