@@ -1,8 +1,10 @@
+
 from ..database.conexion import get_connection
 from ..logger_config import logger
 
 
 class Producto:
+
     @staticmethod
     def crear_producto(
             nombre, cantidad_stock, unidad_medida,
@@ -18,10 +20,11 @@ class Producto:
             conn.start_transaction()
 
             query = """
-                INSERT INTO producto (nombre, cantidad_stock, unidad_medida,
-            precio_compra, precio_venta, porcentaje_iva, id_marca)
-            VALUES (%s, %s, %s, %s, %s, %s,%s)
+                INSERT INTO producto 
+                (nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, id_marca) 
+                VALUES (%s, %s, %s, %s, %s, %s,%s)
             """
+
             values = (
                 nombre, cantidad_stock, unidad_medida,
                 precio_compra, precio_venta, porcentaje_iva, id_marca
@@ -46,8 +49,11 @@ class Producto:
             if conn:
                 conn.close()
 
+
     @staticmethod
     def listar_productos():
+        conn = None
+        cursor = None
 
         try:
             conn = get_connection()  # Establecer la conexión
@@ -57,7 +63,7 @@ class Producto:
             logger.info(f'{len(productos)} productos obtenidos correctamente')
             return productos
 
-        except Exception as e:
+        except Exception:
             logger.error('Error en listar_productos:', exc_info=True)  # exc_info da mas información del error.
             return None
 
@@ -67,10 +73,73 @@ class Producto:
             if conn:
                 conn.close()
 
+
     @staticmethod
     def eliminar_producto(id_producto):
-        conn = get_connection()
-        cursor = conn.cursor
+        conn = None
+        cursor = None
 
-        cursor.execute("DELETE FROM producto WHERE id = %s", (id_producto,))
+        try:
+            conn = get_connection()
+            cursor = conn.cursor
+
+            query = "DELETE FROM producto WHERE id = %s"
+            values = (id_producto,)
+            cursor.execute(query, values)
+            logger.info(f"Producto eliminado correctamente")
+            return True
+
+        except Exception:
+            if conn:
+                conn.rollback()
+            logger.error("Error en eliminar_producto:", exc_info=True)
+            return False
+
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
+    @staticmethod
+    def actualizar_producto(id_producto,
+        nombre, cantidad_stock, unidad_medida,
+        precio_compra, precio_venta, porcentaje_iva, id_marca
+        ):
+
+        conn = None
+        cursor = None
+
+        try:
+            conn = get_connection()
+            cursor = conn.cursor()
+
+            query = """
+            UPDATE producto 
+            SET nombre = %s, cantidad_stock = %s, unidad_medida = %s, 
+                precio_compra = %s, precio_venta = %s, porcentaje_iva = %s, 
+                id_marca = %s 
+            WHERE id_producto = %s
+            """
+            values = (
+                nombre, cantidad_stock, unidad_medida,
+                precio_compra, precio_venta, porcentaje_iva, id_marca,
+                id_producto
+            )
+
+            cursor.execute(query, values)
+
+            logger.info(f"Producto actualizado correctamente")
+            return True
+        except Exception:
+            if conn:
+                conn.rollback()
+            logger.error("Error en actualizar_producto:", exc_info=True)
+            return False
+        finally:
+            if cursor:
+                cursor.close()
+            if conn:
+                conn.close()
+
 
