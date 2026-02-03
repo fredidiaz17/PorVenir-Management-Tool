@@ -20,13 +20,13 @@ class Producto:
             conn.start_transaction()
 
             query = """
-                INSERT INTO producto 
+                INSERT INTO Producto 
                 (nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, id_marca) 
                 VALUES (%s, %s, %s, %s, %s, %s,%s)
             """
 
             values = (
-                nombre, cantidad_stock, unidad_medida,
+                nombre, cantidad_stock, unidad_medida.value,
                 precio_compra, precio_venta, porcentaje_iva, id_marca
             )
 
@@ -58,13 +58,13 @@ class Producto:
         try:
             conn = get_connection()  # Establecer la conexión
             cursor = conn.cursor(dictionary=True)  # Entregar valores como diccionario
-            cursor.execute("SELECT * FROM producto")
+            cursor.execute("SELECT * FROM Producto")
             productos = cursor.fetchall()
             logger.info(f'{len(productos)} productos obtenidos correctamente')
             return productos
 
         except Exception:
-            logger.error('Error en listar_productos:', exc_info=True)  # exc_info da mas información del error.
+            logger.error('Error en listar_productos:', exc_info=True)  # exc_info da más información del error.
             return None
 
         finally:
@@ -81,11 +81,12 @@ class Producto:
 
         try:
             conn = get_connection()
-            cursor = conn.cursor
+            cursor = conn.cursor()
 
-            query = "DELETE FROM producto WHERE id = %s"
+            query = "DELETE FROM producto WHERE id_producto = %s"
             values = (id_producto,)
             cursor.execute(query, values)
+            conn.commit()
             logger.info(f"Producto eliminado correctamente")
             return True
 
@@ -102,8 +103,8 @@ class Producto:
                 conn.close()
 
     @staticmethod
-    def actualizar_producto(id_producto,
-        nombre, cantidad_stock, unidad_medida,
+    def actualizar_producto(
+        id_producto, nombre, cantidad_stock, unidad_medida,
         precio_compra, precio_venta, porcentaje_iva, id_marca
         ):
 
@@ -115,22 +116,24 @@ class Producto:
             cursor = conn.cursor()
 
             query = """
-            UPDATE producto 
-            SET nombre = %s, cantidad_stock = %s, unidad_medida = %s, 
-                precio_compra = %s, precio_venta = %s, porcentaje_iva = %s, 
-                id_marca = %s 
-            WHERE id_producto = %s
-            """
+                    UPDATE producto 
+                    SET nombre = %s, cantidad_stock = %s, unidad_medida = %s, 
+                        precio_compra = %s, precio_venta = %s, porcentaje_iva = %s, 
+                        id_marca = %s 
+                    WHERE id_producto = %s
+                """
             values = (
-                nombre, cantidad_stock, unidad_medida,
+                nombre, cantidad_stock, unidad_medida.value,
                 precio_compra, precio_venta, porcentaje_iva, id_marca,
                 id_producto
             )
 
             cursor.execute(query, values)
+            conn.commit()
 
             logger.info(f"Producto actualizado correctamente")
             return True
+
         except Exception:
             if conn:
                 conn.rollback()
