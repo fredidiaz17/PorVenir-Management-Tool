@@ -3,7 +3,7 @@ from src.models.producto import Producto
 from src.models.enums import productos_enum
 
 class ProductoController:
-
+    # Todo: Anexar validación de datos a nivel controlador.
     def __init__(self, marcas_controller):
         self.marcas_controller = marcas_controller
 
