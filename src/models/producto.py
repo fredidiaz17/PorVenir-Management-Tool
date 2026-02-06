@@ -58,7 +58,12 @@ class Producto:
         try:
             conn = get_connection()  # Establecer la conexión
             cursor = conn.cursor(dictionary=True)  # Entregar valores como diccionario
-            cursor.execute("SELECT * FROM Producto")
+            cursor.execute("""
+                           SELECT p.*, m.nombre as marca
+                           FROM Producto p 
+                               JOIN marca m 
+                               ON m.id_marca = p.id_marca
+                           """)
             productos = cursor.fetchall()
             logger.info(f'{len(productos)} productos obtenidos correctamente')
             return productos
@@ -144,5 +149,4 @@ class Producto:
                 cursor.close()
             if conn:
                 conn.close()
-
 
