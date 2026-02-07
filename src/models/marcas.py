@@ -1,7 +1,7 @@
 from src.database.conexion import get_connection
 from src.logger_config import logger
 
-class Marcas():
+class Marcas:
 
     @staticmethod
     def crear_marca(nombre, descripcion, id_compania):
@@ -47,7 +47,7 @@ class Marcas():
             cursor.execute("""
                            SELECT m.*, c.nombre as compania
                            FROM marca as m 
-                               JOIN companias as c 
+                               JOIN compania as c 
                                on m.id_compania = c.id_compania
                            """)
             marcas = cursor.fetchall()
