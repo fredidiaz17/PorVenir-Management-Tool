@@ -44,7 +44,12 @@ class Marcas():
         try:
             conn = get_connection()
             cursor = conn.cursor(dictionary=True)
-            cursor.execute("SELECT * FROM marca")
+            cursor.execute("""
+                           SELECT m.*, c.nombre as compania
+                           FROM marca as m 
+                               JOIN companias as c 
+                               on m.id_compania = c.id_compania
+                           """)
             marcas = cursor.fetchall()
             logger.info(f'{len(marcas)} marcas obtenidas correctamente')
             return marcas

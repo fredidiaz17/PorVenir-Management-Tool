@@ -27,11 +27,13 @@ class MarcasView(ctk.CTkFrame):
 
         frame_marcas, self.tv_marcas = self._create_treeview(
             tablas_frame,
-            columns=("nombre", "descripcion", "id_compania"),
-            headers=("Nombre", "Descripción", "Compañía"),
+            columns=("nombre", "descripcion", "id_compania", "compania"),
+            headers=("Nombre", "Descripción", "id_compania", "Compañia a la que pertenece"),
             title="Marcas"
         )
         frame_marcas.grid(row=0, column=0, sticky="nsew", padx=5)
+
+        self.tv_marcas.column("id_compania", width=0, stretch=False)
 
         frame_companias, self.tv_companias = self._create_treeview(
             tablas_frame,
@@ -174,7 +176,7 @@ class MarcasView(ctk.CTkFrame):
                     "",
                     "end",
                     iid=m["id_marca"],
-                    values=(m["nombre"], m["descripcion"], m["id_compania"])
+                    values=(m["nombre"], m["descripcion"], m["id_compania"], m["compania"])
                 )
 
     def cargar_companias(self, companias=None):
@@ -223,7 +225,7 @@ if __name__ == "__main__":
     ])
 
     view.cargar_marcas([
-        {"id_marca": "10", "nombre": "Marca X", "descripcion": "Desc", "id_compania": "1"},
+        {"id_marca": "10", "nombre": "Marca X", "descripcion": "Desc", "id_compania": "1", "compania": "Comp A"},
     ])
 
     app.mainloop()
