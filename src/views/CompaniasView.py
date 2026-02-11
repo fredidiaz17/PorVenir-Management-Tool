@@ -39,7 +39,7 @@ class CompaniasView(ctk.CTkFrame):
          # todo: Hacer cambios (adaptados) a CompaniasView, repetir lo mismo con marcas, probar todo junto
         yscroll = CTkScrollbar(frame_companias, orientation="vertical", command=self.tv_companias.yview)
         self.tv_companias.configure(yscrollcommand= yscroll.set)
-        yscroll.grid(row=0, column=2, sticky="ns")
+        yscroll.grid(row=1, column=2, sticky="ns")
 
 
         # ---------- FORM ----------
