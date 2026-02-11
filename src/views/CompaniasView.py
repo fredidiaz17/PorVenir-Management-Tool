@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 
+from customtkinter import CTkScrollbar
 
 MAX_NOMBRE_LEN = 100
 # Si, este codigo es un copia y pega de MarcasView, pero adaptado.
@@ -31,6 +32,15 @@ class CompaniasView(ctk.CTkFrame):
             title="Compañías"
         )
         frame_companias.grid(row=0, column=0, sticky="nsew", padx=5)
+        # Vinculandolo al evento para rellenar entries
+        self.tv_companias.bind("<Double-Button-1>", self._rellenar_entries)
+
+        # ---------- Scroller ---------
+         # todo: Hacer cambios (adaptados) a CompaniasView, repetir lo mismo con marcas, probar todo junto
+        yscroll = CTkScrollbar(frame_companias, orientation="vertical", command=self.tv_companias.yview)
+        self.tv_companias.configure(yscrollcommand= yscroll.set)
+        yscroll.grid(row=0, column=2, sticky="ns")
+
 
         # ---------- FORM ----------
         form_frame = ctk.CTkFrame(self)
@@ -69,6 +79,7 @@ class CompaniasView(ctk.CTkFrame):
 
     # ---------------- VALIDACIÓN ----------------
     def _validar_form(self):
+
         nombre = self.nombre_entry.get().strip()
 
         if not nombre:
@@ -89,7 +100,14 @@ class CompaniasView(ctk.CTkFrame):
 
         nombre = data
 
-        if self.controller:
+        msg = f"""
+                        Se creará la compañia "{nombre}".
+                        ¿Proseguir?
+                """
+
+        confirm = messagebox.askokcancel("Confirmar creación", msg)
+
+        if self.controller and confirm:
             self.controller.crear_compania(nombre)
 
     def actualizar(self):
@@ -104,8 +122,17 @@ class CompaniasView(ctk.CTkFrame):
 
         id_compania = sel[0]
         nombre = data
+        name_anterior = self.tv_companias.item(id_compania)["values"][0]
 
-        if self.controller:
+        msg = f"""
+            Se actualizará la compañia "{name_anterior}"
+            a "{nombre}".
+            ¿Proseguir?
+        """
+
+        confirm = messagebox.askokcancel("Confirmar actualización", msg)
+
+        if self.controller and confirm:
             self.controller.actualizar_compania(id_compania, nombre)
 
     def eliminar(self):
@@ -113,15 +140,42 @@ class CompaniasView(ctk.CTkFrame):
         if not sel:
             messagebox.showerror("Error", "Seleccione una compañia")
             return
+        nombre = self.tv_companias.item(sel[0], "values")[0]
 
-        if self.controller:
+        msg = f"""
+            Se eliminará la compañia "{nombre}"
+            ¿Seguro?
+        """
+
+        confirm = messagebox.askokcancel("Confirmar eliminación", msg)
+
+        if self.controller and confirm:
             self.controller.eliminar_compania(sel[0])
 
-    def limpiar(self):
+    def limpiar(self, comp = True):
         self.nombre_entry.delete(0, "end")
 
         # opcional: limpiar selección de tablas
-        self.tv_companias.selection_remove(self.tv_companias.selection())
+        if comp:
+            self.tv_companias.selection_remove(self.tv_companias.selection())
+
+    # ---------------- EVENTOS ----------------
+
+    def _rellenar_entries(self, event):
+        # Capturamos el widget y la seleccion
+        tv = event.widget
+        sel = tv.selection()
+
+        # Recogemos valores de la selección.
+        id = sel[0]
+        val = tv.item(id, "values")
+
+        # Limpiamos las entries para evitar acumulamiento
+        self.limpiar(comp = False)
+
+        # Rellenamos
+        self.nombre_entry.insert(0, val[0])
+
 
     # ---------------- HELPERS PARA CARGA ----------------
 
@@ -136,7 +190,7 @@ class CompaniasView(ctk.CTkFrame):
             self.tv_companias.insert(
                 "",
                 "end",
-                values = ("No hay compañias",) + ("",) * (len(self.tv_marcas["columns"]) - 1)
+                values = ("No hay compañias",) + ("",) * (len(self.tv_companias["columns"]) - 1)
             )
         else:
             for c in companias:
@@ -153,10 +207,9 @@ if __name__ == "__main__":
     ctk.set_appearance_mode("System")
 
     class DummyController:
-        def crear_marca(self, *args): print("crear", args)
-        def actualizar_marca(self, *args): print("actualizar", args)
-        def eliminar_marca(self, *args): print("eliminar", args)
-        def listar_marcas(self): return ()
+        def crear_compania(self, *args): print("crear", args)
+        def actualizar_compania(self, *args): print("actualizar", args)
+        def eliminar_compania(self, *args): print("eliminar", args)
         def listar_companias(self): return ()
 
     app = ctk.CTk()
