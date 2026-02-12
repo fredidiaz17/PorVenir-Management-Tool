@@ -165,12 +165,8 @@ class ProductosView(ctk.CTkFrame):
             messagebox.showerror("Error", "Seleccione una marca")
             return None
 
+        return nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, sel_marca[0]  # iid = id_compania
 
-
-        if confirm:
-            return nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, sel_marca[0]  # iid = id_compania
-        else:
-            return None
     # ---------------- ACCIONES ----------------
     def crear(self):
         data = self._validar_form()
