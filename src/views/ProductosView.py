@@ -165,22 +165,7 @@ class ProductosView(ctk.CTkFrame):
             messagebox.showerror("Error", "Seleccione una marca")
             return None
 
-        marca = self.tv_marcas.item(sel_marca[0])["values"][0]
-        # Todo: pasar esto a los otros cruds, ensamblar y probar
-        msg = f"""
-            Se creará/actualizará un producto con la siguiente información:
-            nombre: {nombre}
-            Cantidad en stock: {cantidad_stock}
-            Unidad de medida: {unidad_medida}
-            Precio de compra: {precio_compra}
-            Precio de venta: {precio_venta}
-            Porcentaje IVA: {porcentaje_iva}
-            Marca: {marca}
-            
-            ¿Está seguro/a que desea continuar?
-        """
 
-        confirm = messagebox.askokcancel(title="Confirmar operación", message= msg)
 
         if confirm:
             return nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, sel_marca[0]  # iid = id_compania
@@ -193,9 +178,26 @@ class ProductosView(ctk.CTkFrame):
             return
 
         nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, id_marca = data
+        tv = self.tv_marcas
+        marca = tv.item(tv.selection()[0], "values")[0]
+        msg = f"""
+                    Se creará un producto con la siguiente información:
+                    nombre: {nombre}
+                    Cantidad en stock: {cantidad_stock}
+                    Unidad de medida: {unidad_medida}
+                    Precio de compra: {precio_compra}
+                    Precio de venta: {precio_venta}
+                    Porcentaje IVA: {porcentaje_iva}
+                    Marca: {marca}
 
-        if self.controller:
-            self.controller.crear_producto(nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, id_marca)
+                    ¿Está seguro/a que desea continuar?
+                """
+
+        confirm = messagebox.askokcancel(title="Confirmar operación", message=msg)
+
+        if self.controller and confirm:
+            self.controller.crear_producto(nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta,
+                                           porcentaje_iva, id_marca)
 
     def actualizar(self):
         sel = self.tv_productos.selection()
@@ -210,7 +212,26 @@ class ProductosView(ctk.CTkFrame):
         id_producto = sel[0]
         nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, id_marca = data
 
-        if self.controller:
+        tv = self.tv_marcas
+        marca = tv.item(tv.selection()[0], "values")[0]
+        name_ant = self.tv_productos.item(sel[0], "values")[0]
+
+        msg = f"""
+                            Se actualizará el producto "{name_ant}" con la siguiente información:
+                            nombre: {nombre}
+                            Cantidad en stock: {cantidad_stock}
+                            Unidad de medida: {unidad_medida}
+                            Precio de compra: {precio_compra}
+                            Precio de venta: {precio_venta}
+                            Porcentaje IVA: {porcentaje_iva}
+                            Marca: {marca}
+
+                            ¿Está seguro/a que desea continuar?
+                        """
+
+        confirm = messagebox.askokcancel(title="Confirmar operación", message=msg)
+
+        if self.controller and confirm:
             self.controller.actualizar_producto(id_producto, nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, id_marca)
 
     def eliminar(self):
@@ -219,9 +240,10 @@ class ProductosView(ctk.CTkFrame):
             messagebox.showerror("Error", "Seleccione un producto")
             return
 
-        prod = self.tv_productos.item(sel[0])["values"][0]
+
 
         # Confirmar
+        prod = self.tv_productos.item(sel[0])["values"][0]
 
         msg = f"""
             El producto "{prod}" será eliminado
@@ -249,7 +271,6 @@ class ProductosView(ctk.CTkFrame):
             self.tv_marcas.selection_remove(self.tv_marcas.selection())
 
     # ---------------- EVENTOS ----------------
-    # Todo: extender esto a los otros cruds, probarlos en conjunto
     def _rellenar_entries(self, event):
         # Primero hay que "capturar" la selección
         tv = event.widget
