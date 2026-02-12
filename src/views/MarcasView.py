@@ -1,6 +1,7 @@
 import customtkinter as ctk
 from tkinter import ttk, messagebox
 
+from click import confirm
 
 MAX_NOMBRE_LEN = 100
 MAX_DESC_LEN = 255
@@ -25,16 +26,30 @@ class MarcasView(ctk.CTkFrame):
         tablas_frame.grid(row=0, column=0, columnspan=2, sticky="nsew", padx=10, pady=10)
         tablas_frame.grid_columnconfigure((0, 1), weight=1)
 
+        # Marcas
         frame_marcas, self.tv_marcas = self._create_treeview(
             tablas_frame,
             columns=("nombre", "descripcion", "id_compania", "compania"),
-            headers=("Nombre", "Descripción", "id_compania", "Compañia a la que pertenece"),
+            headers=("Nombre de la marca", "Descripción", "id_compania", "Compañia a la que pertenece"),
             title="Marcas"
         )
         frame_marcas.grid(row=0, column=0, sticky="nsew", padx=5)
+        # Vinculandolo al evento
+
+        self.tv_marcas.bind("<Double-Button-1>", self._rellenar_entries)
+
+        # ---- Scrollers
+        yscroll = ctk.CTkScrollbar(frame_marcas, orientation="vertical", command=self.tv_marcas.yview)
+        self.tv_marcas.config(yscrollcommand=yscroll.set)
+        yscroll.grid(row=1, column = 2, sticky= "ns")
+
+        xscroll = ctk.CTkScrollbar(frame_marcas, orientation="horizontal", command=self.tv_marcas.xview)
+        self.tv_marcas.config(xscrollcommand=xscroll.set)
+        xscroll.grid(row=2, column = 0, sticky= "ew")
 
         self.tv_marcas.column("id_compania", width=0, stretch=False)
 
+        # Companias
         frame_companias, self.tv_companias = self._create_treeview(
             tablas_frame,
             columns=("nombre",),
@@ -42,6 +57,11 @@ class MarcasView(ctk.CTkFrame):
             title="Compañías"
         )
         frame_companias.grid(row=0, column=1, sticky="nsew", padx=5)
+
+        # ---- Scrollers
+        yscroll = ctk.CTkScrollbar(frame_companias, orientation="vertical", command=self.tv_companias.yview)
+        self.tv_companias.config(yscrollcommand=yscroll.set)
+        yscroll.grid(row=1, column = 2, sticky= "ns")
 
         # ---------- FORM ----------
         form_frame = ctk.CTkFrame(self)
@@ -116,8 +136,20 @@ class MarcasView(ctk.CTkFrame):
             return
 
         nombre, desc, id_compania = data
+        tv = self.tv_companias
+        comp = tv.item(tv.selection()[0], "values")[0]
 
-        if self.controller:
+        msg = f"""
+                Se creará una nueva marca con la siguiente información:
+                Nombre de la marca: {nombre},
+                Descripción: {desc},
+                Compania a la que pertenece: {comp}
+                
+                ¿Proseguir?
+            """
+
+        confirm = messagebox.askyesno("Confirmar creación", msg)
+        if self.controller and confirm:
             self.controller.crear_marca(nombre, desc, id_compania)
 
     def actualizar(self):
@@ -133,7 +165,23 @@ class MarcasView(ctk.CTkFrame):
         id_marca = sel[0]
         nombre, desc, id_compania = data
 
-        if self.controller:
+        name_ant = self.tv_marcas.item(id_marca, "values")[0]
+
+        tv = self.tv_companias
+        comp = tv.item(tv.selection()[0], "values")[0]
+
+        msg = f"""
+                        Se actualizará la marca {name_ant} con la siguiente información:
+                        Nombre de la marca: {nombre},
+                        Descripción: {desc},
+                        Compania a la que pertenece: {comp}
+                        
+                        ¿Proseguir?
+                    """
+
+        confirm = messagebox.askyesno("Confirmar actualización", msg)
+
+        if self.controller and confirm:
             self.controller.actualizar_marca(id_marca, nombre, desc, id_compania)
 
     def eliminar(self):
@@ -142,10 +190,17 @@ class MarcasView(ctk.CTkFrame):
             messagebox.showerror("Error", "Seleccione una marca")
             return
 
-        if self.controller:
+        marca = self.tv_marcas.item(sel[0], "values")[0]
+
+        msg = f"""
+                Se eliminará la marca "{marca}"
+                ¿Está seguro?
+            """
+        confirm = messagebox.askyesno("Confirmar eliminacion", msg)
+        if self.controller and confirm:
             self.controller.eliminar_marca(sel[0])
 
-    def limpiar(self):
+    def limpiar(self, marca= True, comp = True):
         self.nombre_entry.delete(0, "end")
 
         # si usas CTkTextbox
@@ -153,8 +208,36 @@ class MarcasView(ctk.CTkFrame):
             self.desc_text.delete("1.0", "end")
 
         # opcional: limpiar selección de tablas
-        self.tv_marcas.selection_remove(self.tv_marcas.selection())
-        self.tv_companias.selection_remove(self.tv_companias.selection())
+        if marca:
+            self.tv_marcas.selection_remove(self.tv_marcas.selection())
+        if comp:
+            self.tv_companias.selection_remove(self.tv_companias.selection())
+
+    # ---------------- EVENTOS ----------------
+    def _rellenar_entries(self, event):
+        # Capturar seleccion
+        tv = event.widget
+        sel = tv.selection()
+
+        # Recoger valores
+        item_id = sel[0]
+        val = tv.item(item_id, "values")
+
+        # Limpiamos
+        self.limpiar(marca= False)
+
+        # Orden de columnas: nombre, descripcion, id_compania, nombre_compania
+        self.nombre_entry.insert(0, val[0])
+        self.desc_text.insert("1.0", val[1])
+
+        tv2 = self.tv_marcas
+        id_comp = int(val[2])
+
+        for iid in tv2.get_children():
+            if iid == id_comp:
+                tv2.selection_set(iid)
+                tv2.focus(iid)
+                tv2.see(iid)
 
     # ---------------- HELPERS PARA CARGA ----------------
     def cargar_marcas(self, marcas=None):
