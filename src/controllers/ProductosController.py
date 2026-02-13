@@ -4,10 +4,10 @@ from src.models.enums import productos_enum
 
 class ProductoController:
     # Todo: Anexar validación de datos a nivel controlador.
-    def __init__(self, marcas_controller):
+    def __init__(self, marcas_controller = None):
         self.marcas_controller = marcas_controller
 
-
+g
     # CRUD producto
     @staticmethod
     def crear_producto(
