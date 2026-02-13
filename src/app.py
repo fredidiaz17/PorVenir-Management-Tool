@@ -93,6 +93,9 @@ class App(ctk.CTk):
             vista.grid(row=0, column=0, sticky= "nsew")
             self.vista_actual = vista
 
+            # cargando registros
+            if hasattr(vista, "on_show"):
+                vista.on_show()
             # resetear colores de botones
             for btn in self.botones_nav.values():
                 btn.configure(fg_color=("gray75", "gray25"))
@@ -110,4 +113,4 @@ if __name__ == "__main__":
     app = App()
     app.mainloop()
 
-# todo: Agregar función _on_Show a cada una de las vistas.
+# todo: Agregar logs a los respectivos modulos, continuar con otras entidades
