@@ -68,6 +68,5 @@ class ProductoController:
         return False
 
     # Marcas
-    @staticmethod
     def listar_marcas(self):
         return self.marcas_controller.listar_marcas()
