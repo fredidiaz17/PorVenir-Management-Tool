@@ -179,6 +179,9 @@ class CompaniasView(ctk.CTkFrame):
 
     # ---------------- HELPERS PARA CARGA ----------------
 
+    def on_show(self):
+        self.cargar_companias()
+
     def cargar_companias(self, companias=None):
 
         if self.controller and not companias:
@@ -210,7 +213,6 @@ if __name__ == "__main__":
         def crear_compania(self, *args): print("crear", args)
         def actualizar_compania(self, *args): print("actualizar", args)
         def eliminar_compania(self, *args): print("eliminar", args)
-        def listar_companias(self): return ()
 
     app = ctk.CTk()
     app.geometry("900x500")
