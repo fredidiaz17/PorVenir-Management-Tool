@@ -3,7 +3,7 @@ from src.logger_config import logger
 
 class MarcasController:
 
-    def __init__(self, companias_controller):
+    def __init__(self, companias_controller = None):
         self.companias_controller = companias_controller
 
     @staticmethod
