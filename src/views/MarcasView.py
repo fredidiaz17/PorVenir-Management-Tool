@@ -240,6 +240,10 @@ class MarcasView(ctk.CTkFrame):
                 tv2.see(iid)
 
     # ---------------- HELPERS PARA CARGA ----------------
+    def on_show(self):
+        self.cargar_marcas()
+        self.cargar_companias()
+
     def cargar_marcas(self, marcas=None):
 
         if self.controller and not marcas:
@@ -293,8 +297,6 @@ if __name__ == "__main__":
         def crear_marca(self, *args): print("crear", args)
         def actualizar_marca(self, *args): print("actualizar", args)
         def eliminar_marca(self, *args): print("eliminar", args)
-        def listar_marcas(self): return ()
-        def listar_companias(self): return ()
 
     app = ctk.CTk()
     app.geometry("900x500")
