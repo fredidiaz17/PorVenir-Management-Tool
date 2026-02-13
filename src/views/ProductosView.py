@@ -302,6 +302,10 @@ class ProductosView(ctk.CTkFrame):
 
 
     # ---------------- HELPERS PARA CARGA ----------------
+    def on_show(self):
+        self.cargar_marcas()
+        self.cargar_productos()
+
     def cargar_productos(self, productos=None):
 
         if self.controller and not productos:
@@ -361,12 +365,6 @@ if __name__ == "__main__":
         def actualizar_producto(self, *args): print("actualizar", args)
 
         def eliminar_producto(self, *args): print("eliminar", args)
-
-        def listar_productos(self): return ()
-
-        def listar_marcas(self): return ()
-
-
 
 
     app = ctk.CTk()
