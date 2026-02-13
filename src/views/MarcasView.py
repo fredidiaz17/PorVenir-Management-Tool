@@ -241,8 +241,8 @@ class MarcasView(ctk.CTkFrame):
 
     # ---------------- HELPERS PARA CARGA ----------------
     def on_show(self):
-        self.cargar_marcas()
         self.cargar_companias()
+        self.cargar_marcas()
 
     def cargar_marcas(self, marcas=None):
 
