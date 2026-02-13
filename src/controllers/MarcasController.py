@@ -46,6 +46,6 @@ class MarcasController:
             return False
 
     # ------Metodos de Compañias-------
-    @staticmethod
+    # No debe llevar static method ya que lleva self
     def listar_companias(self):
         return self.companias_controller.listar_companias()
