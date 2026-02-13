@@ -7,7 +7,6 @@ class ProductoController:
     def __init__(self, marcas_controller = None):
         self.marcas_controller = marcas_controller
 
-g
     # CRUD producto
     @staticmethod
     def crear_producto(
