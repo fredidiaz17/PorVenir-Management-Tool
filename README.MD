@@ -1,8 +1,13 @@
-# 📘 Documento de Diseño de Base de Datos
+Este es el README en inglés, para la versión en español usa el siguiente enlace:
+[Readme.md](README-es.md)
 
-**Proyecto:** Sistema de gestión para tienda de barrio
-**Autor:** Fredi Díaz
-**Fecha:** 06/10/2025
+
+---
+# 📘 Sistema de gestión para tienda de barrio (PorvenirMGT)
+
+**Proyecto:** Sistema de gestión para tienda de barrio<br>
+**Autor:** Fredi Díaz<br>
+**Fecha de inicio:** 06/10/2025
 
 ---
 
