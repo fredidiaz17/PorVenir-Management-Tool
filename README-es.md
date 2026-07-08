@@ -66,3 +66,11 @@ Por hacer
 * Imagen del **DER** (versión actual).
 * Historial de versiones del diseño.
 * Notas adicionales de implementación.
+
+## 7. Pendientes 08/07/2026.
+* Implementar el resto de Endpoints.
+* Migrar la BD de MySQL a PostgreSQL (Se puede usar MySQL de forma nativa con SQLAlchemy, pero el objetivo es usar PostgreSQL).
+* Implementar un ORM de SQLAlchemy.
+* Crear el front de la aplicación.
+* Desplegar el Backend a la web.
+* Desplegar el Front a la web.
