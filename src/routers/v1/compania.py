@@ -1,11 +1,7 @@
 from fastapi import APIRouter
 from src.database.db_conn import engine
 from sqlalchemy import text
-from pydantic import BaseModel
-
-# Definir modelo con Pydantic
-class Compania(BaseModel):
-    nombre: str
+from src.schemas.compania import Compania
 
 
 router = APIRouter() # El Router recibe la petición y la dirige a su respectiva ruta
