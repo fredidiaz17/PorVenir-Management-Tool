@@ -17,3 +17,5 @@ venv/
 
 # Otros comunes
 *.log
+*.json
+*.csv
