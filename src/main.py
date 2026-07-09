@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from src.api.v1.compania import router as compania_router
+from src.api_v1 import router as api_v1_router
 
 app = FastAPI(
     title = "PorvenirMGT API",
@@ -8,8 +8,7 @@ app = FastAPI(
 ) # Punto de entrada 
 
 app.include_router( # Incluir router al app
-    compania_router, # Router en cuestión
-    prefix="/api/v1/compania", # Prefijo de las rutas del router
-    tags=["Compañias"] # Agrupación visual en documentación (/docs)
+    api_v1_router, # Router en cuestión
+    prefix="/api/v1", # Prefijo de las rutas del router
 )
 
