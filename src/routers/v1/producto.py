@@ -1,74 +1,91 @@
-from fastapi import APIRouter
-from src.database.db_conn import engine 
-from sqlalchemy import text
-from src.schemas.productos import Producto
+from src.schemas.producto import Producto
+from fastapi import APIRouter, Depends      
+from src.database.db_conn import get_bd
+
+from sqlalchemy.orm import Session
+from sqlalchemy import select
+
+from src.schemas.producto import CreateProducto, ProductoPatch
+
+from src.models.producto import ProductoModel
 
 router = APIRouter()
 
 @router.get("/")
-def get_productos():
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT * FROM producto"))
-        result = [dict(row) for row in result.mappings().fetchall()]
+def get_productos(db: Session = Depends(get_bd)):
+    stmt = select(ProductoModel)
+    result = db.execute(stmt).scalars().all()
     return {"status": "ok", "data": result} 
 
 @router.get("/{id_producto}")
-def get_producto(id_producto: int):
-    with engine.connect() as conn:
-        result = conn.execute(text("SELECT * FROM producto WHERE id_producto = :id_producto"), {"id_producto": id_producto})
-        result =  result.mappings().fetchone()
+def get_producto(id_producto: int, db: Session = Depends(get_bd)):
+    stmt = select(ProductoModel).where(ProductoModel.id_producto == id_producto)
+    result = db.execute(stmt).scalar_one_or_none()
+    if result is None: 
+        return {"status": "error", "message": "Producto no encontrado"}
     return {"status": "ok", "data": result} 
 
 @router.post("/")
-def create_producto(producto: Producto):
+def create_producto(producto: CreateProducto, db: Session = Depends(get_bd)):
     try:
-        product_data = producto.model_dump()
-        with engine.begin() as conn:
-            data = {
-                "nombre": product_data.get("nombre"),
-                "stock": product_data.get("stock"),
-                "unidad_medida": product_data.get("unidad_medida"),
-                "precio_compra": product_data.get("precio_compra"),
-                "precio_venta": product_data.get("precio_venta"),
-                "iva": product_data.get("iva"),
-                "id_marca": product_data.get("id_marca")
-            }
-            conn.execute(text("""
-            INSERT INTO producto (nombre, cantidad_stock, unidad_medida, precio_compra, precio_venta, porcentaje_iva, id_marca) 
-            VALUES (:nombre, :stock, :unidad_medida, :precio_compra, :precio_venta, :iva, :id_marca)"""), 
-            data)
+        new_producto = ProductoModel(**producto.model_dump()) # Desenpaquetado. El schema debe tener las mismas key que el modelo para funcionar. (OJO)
+        db.add(new_producto)
+        db.commit()
+        db.refresh(new_producto)
+        
         return {"status": "ok", "message": "Producto creado exitosamente"}
     except Exception as e:
         return {"status": "error", "message": str(e)} 
 
 @router.put("/{id_producto}")
-def update_producto(id_producto: int, producto: Producto):
+def update_producto(id_producto: int, producto: Producto, db: Session = Depends(get_bd)):
     try:
-        product_data = producto.model_dump()
-        with engine.begin() as conn:
-            data = {
-                "nombre": product_data.get("nombre"),
-                "stock": product_data.get("stock"),
-                "unidad_medida": product_data.get("unidad_medida"),
-                "precio_compra": product_data.get("precio_compra"),
-                "precio_venta": product_data.get("precio_venta"),
-                "iva": product_data.get("iva"),
-                "id_marca": product_data.get("id_marca"),
-                "id_producto": id_producto
-            }
-            conn.execute(text("""
-            UPDATE producto SET nombre = :nombre, cantidad_stock = :stock, unidad_medida=:unidad_medida, precio_compra = :precio_compra, precio_venta = :precio_venta, porcentaje_iva = :iva, id_marca = :id_marca 
-            WHERE id_producto = :id_producto"""), data)
-            return {"status": "ok", "message": "Producto actualizado exitosamente"} 
+        query_producto = db.get(ProductoModel, id_producto) # Se busca el producto por PK.
+        if not query_producto: # Si no se encuentra el producto.
+            return {"status": "error", "message": "Producto no encontrado"} 
+        
+        # Si se encuentra el producto.
+        query_producto.nombre = producto.nombre
+        query_producto.cantidad_stock = producto.cantidad_stock
+        query_producto.unidad_medida = producto.unidad_medida
+        query_producto.precio_compra = producto.precio_compra
+        query_producto.precio_venta = producto.precio_venta
+        query_producto.porcentaje_iva = producto.porcentaje_iva
+        query_producto.id_marca = producto.id_marca
+
+        db.commit()
+        db.refresh(query_producto)
+        return {"status": "ok", "message": "Producto actualizado exitosamente"} 
+    except Exception as e:
+        return {"status": "error", "message": str(e)} 
+
+@router.patch("/{id_producto}")
+def update_producto_parcial(id_producto: int, producto: ProductoPatch, db: Session = Depends(get_bd)):
+    try:
+        query_producto = db.get(ProductoModel, id_producto) # Se busca el producto por PK.
+        if not query_producto: # Si no se encuentra el producto.
+            return {"status": "error", "message": "Producto no encontrado"} 
+        
+        # Si se encuentra el producto.
+        for key, value in producto.model_dump().items():
+            if value is not None:
+                setattr(query_producto, key, value)
+
+        db.commit()
+        db.refresh(query_producto)
+        return {"status": "ok", "message": "Producto actualizado exitosamente"} 
     except Exception as e:
         return {"status": "error", "message": str(e)} 
 
 @router.delete("/{id_producto}")
-def delete_producto(id_producto: int):
+def delete_producto(id_producto: int, db: Session = Depends(get_bd)):
     try:
-        with engine.begin() as conn:
-            conn.execute(text("DELETE FROM producto WHERE id_producto = :id_producto"), {"id_producto": id_producto})
-            return {"status": "ok", "message": "Producto eliminado exitosamente"} 
+        query_producto = db.get(ProductoModel, id_producto)
+        if not query_producto: # Si no se encuentra el producto.
+            return {"status": "error", "message": "Producto no encontrado"} 
+        db.delete(query_producto)
+        db.commit()
+        return {"status": "ok", "message": "Producto eliminado exitosamente"} 
     except Exception as e:
         return {"status": "error", "message": str(e)} 
 
