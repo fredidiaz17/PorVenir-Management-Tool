@@ -20,9 +20,10 @@ class ProductoModel(Base):
     # Relación con MarcaModel
     marcas: Mapped[MarcaModel] = relationship(
         "MarcaModel",
-        back_populates="productos",
-        cascade= "all, delete-orphan"
+        back_populates="productos"
     )
-    
+    # Producto tiene otras relaciones, faltan por implementar
     def __repr__(self) -> str:
-        return f"Producto(id_producto={self.id_producto!r}, nombre={self.nombre!r})"
+        return f"""ProductoModel(id_producto={self.id_producto!r}, nombre={self.nombre!r}, id_marca={self.id_marca!r}, 
+        cantidad_stock={self.cantidad_stock!r}, unidad_medida={self.unidad_medida!r}, precio_compra={self.precio_compra!r}, 
+        precio_venta={self.precio_venta!r}, porcentaje_iva={self.porcentaje_iva!r})"""
