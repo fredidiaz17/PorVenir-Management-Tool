@@ -17,7 +17,9 @@ db_url = f"mysql+pymysql://{db_username}:{db_password}@{db_host}:{db_port}/{db_n
 engine = create_engine(db_url)
 
 # Creador de sesiones para la bd
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine) 
+# autoflush: vacía la sesión automaticamente al finalizar la ejecución de cada método. 
+# autocommit: confirma los cambios realizados a la bd automaticamente. 
 
 def get_bd():
     db = SessionLocal() # Abrir la sesión. 

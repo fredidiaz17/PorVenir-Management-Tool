@@ -74,4 +74,6 @@ Por hacer
 * Crear el front de la aplicación.
 * Desplegar el Backend a la web.
 * Desplegar el Front a la web.
-* Implementar body request y body response.
+* Implementar body request y body response con Pydantic.
+* Hacer que el backend sea mas eficiente con async/await.
+* Cambiar el create_All de la inicialización de la bd (main.py) por Alembic.

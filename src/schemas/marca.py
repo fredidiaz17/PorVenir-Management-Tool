@@ -5,7 +5,8 @@ class Marca(BaseModel): # Modelo base
     descripcion: str | None = "sin descripción"
     id_compania: int
 
-class MarcaUpdate(BaseModel): # Modelo para actualizar # TODO: Por implementar
+class MarcaPatch(BaseModel): # Modelo para actualizar solo lo necesario (patch).
     nombre: str | None = None
     descripcion: str | None = None
     id_compania: int | None = None
+

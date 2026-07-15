@@ -23,3 +23,6 @@ class MarcaModel(Base):
         back_populates="marca", 
         cascade="all, delete-orphan"
     )
+
+    def __repr__(self):
+        return f"MarcaModel(id_marca={self.id_marca}, nombre={self.nombre}, descripcion={self.descripcion}, id_compania={self.id_compania})" 
