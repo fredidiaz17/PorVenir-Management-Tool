@@ -57,6 +57,7 @@ def setup_marca(client, setup_compania):
         "id_compania": 1
     })
 
+
 @pytest.fixture
 def setup_producto(client, setup_marca):
     client.post("/api/v1/producto/", json={
