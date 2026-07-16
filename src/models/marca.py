@@ -1,8 +1,13 @@
 from __future__ import annotations # Con esto se evita el import circular
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.db_conn import Base
-# from src.models.compania import CompaniaModel
+
+if TYPE_CHECKING:
+    from src.models.compania import CompaniaModel
+    from src.models.producto import ProductoModel
 
 class MarcaModel(Base):
     __tablename__ = "marca"

@@ -1,9 +1,15 @@
 from __future__ import annotations
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String, Float,ForeignKey, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.db_conn import Base
 from src.schemas.enums import UnidadMedida
 
+if TYPE_CHECKING:
+    from src.models.marca import MarcaModel
+    from src.models.producto_etiqueta import ProductoEtiquetaModel
+    
 class ProductoModel(Base):
     __tablename__ = "producto"
     
@@ -22,6 +28,14 @@ class ProductoModel(Base):
         "MarcaModel",
         back_populates="productos"
     )
+
+    # Relación con producto_etiqueta
+    etiquetas: Mapped[list[ProductoEtiquetaModel]] = relationship(
+        "ProductoEtiquetaModel",
+        back_populates="producto",
+        cascade="all, delete-orphan"
+    )
+
     # Producto tiene otras relaciones, faltan por implementar
     def __repr__(self) -> str:
         return f"""ProductoModel(id_producto={self.id_producto!r}, nombre={self.nombre!r}, id_marca={self.id_marca!r}, 

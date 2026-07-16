@@ -16,7 +16,7 @@ class EtiquetaModel(Base):
     color_hex: Mapped[str] = mapped_column(String(9))
 
     # Relación con ProductoEtiquetaModel
-    producto_etiquetas: Mapped[list[ProductoEtiquetaModel]] = relationship(
+    productos: Mapped[list[ProductoEtiquetaModel]] = relationship(
         "ProductoEtiquetaModel",
         back_populates="etiqueta",
         cascade="all, delete-orphan"

@@ -70,6 +70,7 @@ Por hacer
 ## 7. Pendientes 08/07/2026.
 * Implementar el resto de Routers/Endpoints.
 * Migrar la BD de MySQL a PostgreSQL (Se puede usar MySQL de forma nativa con SQLAlchemy, pero el objetivo es usar PostgreSQL).
+* Evaluar la BD actual antes de migrar (definir nullables, comportamiento de Foreign Keys, etc).
 * Implementar un ORM de SQLAlchemy.
 * Crear el front de la aplicación.
 * Desplegar el Backend a la web.
