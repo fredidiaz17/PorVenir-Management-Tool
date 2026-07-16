@@ -5,7 +5,7 @@ from src.database.db_conn import get_bd
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from src.schemas.producto import CreateProducto, ProductoPatch
+from src.schemas.producto import Producto, ProductoPatch
 
 from src.models.producto import ProductoModel
 
@@ -26,7 +26,7 @@ def get_producto(id_producto: int, db: Session = Depends(get_bd)):
     return {"status": "ok", "data": result} 
 
 @router.post("/")
-def create_producto(producto: CreateProducto, db: Session = Depends(get_bd)):
+def create_producto(producto: Producto, db: Session = Depends(get_bd)):
     try:
         new_producto = ProductoModel(**producto.model_dump()) # Desenpaquetado. El schema debe tener las mismas key que el modelo para funcionar. (OJO)
         db.add(new_producto)
