@@ -1,5 +1,7 @@
 from enum import Enum
 
+# Enum usado por producto 
+
 class UnidadMedida(str, Enum): 
     GRAMOS = "Gramos"
     KILOGRAMOS = "Kilogramos"
@@ -9,3 +11,15 @@ class UnidadMedida(str, Enum):
     UNIDADES = "Unidades"
     DOCENAS = "Docenas"
     PAQUETES = "Paquetes"
+
+# Enums usado por oferta
+
+class TipoOferta(str, Enum):
+    DESCUENTO = "Descuento"
+    COMBO = "Combo"
+    OTRO = "Otro"
+
+class EstadoOferta(str, Enum):
+    ACTIVA = "Activa"
+    INACTIVA = "Inactiva"
+    FINALIZADA = "Finalizada"
