@@ -1,10 +1,10 @@
 from __future__ import annotations
 from sqlalchemy import String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from src.database.db_conn import base
+from src.database.db_conn import Base
 
 
-class CompaniaModel(base):
+class CompaniaModel(Base):
     __tablename__ = "compania"
     
     id_compania: Mapped[int] = mapped_column(primary_key=True)

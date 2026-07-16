@@ -1,11 +1,11 @@
-from database import Base # Se importa la Base común
-from src.models.compania import CompaniaModel
-from src.models.marca import MarcaModel
-from src.models.producto import ProductoModel
+from src.database.db_conn import Base # Se importa la Base común
+from .compania import CompaniaModel
+from .marca import MarcaModel
+from .producto import ProductoModel
 
 # Opcional, pero permite controlar que expongo al exterior
 __all__ = [
-    "Base"
+    "Base",
     "CompaniaModel",
     "MarcaModel",
     "ProductoModel",

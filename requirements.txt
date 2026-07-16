@@ -4,3 +4,6 @@ SQLAlchemy==2.0.51
 python-dotenv==1.2.2
 PyMySQL==1.2.0
 uvicorn==0.51.0
+pytest==8.0.0
+httpx==0.26.0
+pytest-asyncio==0.23.5

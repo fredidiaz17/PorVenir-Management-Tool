@@ -12,7 +12,7 @@ class MarcaModel(Base):
     descripcion: Mapped[str] = mapped_column(String(255), nullable=False)
 
     # Clave foránea que representa la relación con compania model
-    id_compania = mapped_column(ForeignKey("compania.id_compania", on_delete="CASCADE")) # On delete cascade: Cuando se elimina una compania, se eliminan todas sus marcas
+    id_compania = mapped_column(ForeignKey("compania.id_compania", ondelete="CASCADE")) # On delete cascade: Cuando se elimina una compania, se eliminan todas sus marcas
 
     # Relación con compania model
     compania: Mapped[CompaniaModel] = relationship("CompaniaModel", back_populates="marcas")

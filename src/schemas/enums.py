@@ -1,6 +1,6 @@
 from enum import Enum
 
-class UnidadMedida(str, Enum): # Str = string, Enum = enumeración
+class UnidadMedida(str, Enum): 
     GRAMOS = "Gramos"
     KILOGRAMOS = "Kilogramos"
     LIBRAS = "Libras"

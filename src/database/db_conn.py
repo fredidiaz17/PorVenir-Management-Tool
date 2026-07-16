@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import declarative_base, sessionmaker
+from sqlalchemy.orm import DeclarativeBase, sessionmaker
 from dotenv import load_dotenv 
 import os
 
@@ -29,5 +29,5 @@ def get_bd():
         db.close() # Y finalmente, cerrar la sesión.
 
 # Clase base declarativa. Ya tiene el objeto .metadata por defecto
-class Base(declarative_base()):
+class Base(DeclarativeBase):
     pass
