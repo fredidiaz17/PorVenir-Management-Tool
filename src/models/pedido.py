@@ -8,7 +8,7 @@ from src.schemas.enums import EstadoPedido
 
 if TYPE_CHECKING:
     from src.models.preventista import PreventistaModel
-    
+    from src.models.detalle_pedido import DetallePedidoModel
 
 class PedidoModel(Base):
     __tablename__ = "pedido"
@@ -26,6 +26,11 @@ class PedidoModel(Base):
         back_populates="pedidos"
     )
 
+    detalles: Mapped[list[DetallePedidoModel]] = relationship(
+        "DetallePedidoModel",
+        back_populates="pedido",
+        cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"PedidoModel(id_pedido={self.id_pedido!r}, fecha_pedido={self.fecha_pedido!r}, estado={self.estado!r})"
