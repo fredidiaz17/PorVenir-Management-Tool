@@ -23,3 +23,13 @@ class EstadoOferta(str, Enum):
     ACTIVA = "Activa"
     INACTIVA = "Inactiva"
     FINALIZADA = "Finalizada"
+
+
+# Enums usado por pedido
+
+class EstadoPedido(str, Enum):
+    PENDIENTE = "Pendiente"
+    EN_CAMINO = "En camino"
+    RECIBIDO = "Recibido"
+    RECHAZADO = "Rechazado"
+    CANCELADO = "Cancelado"

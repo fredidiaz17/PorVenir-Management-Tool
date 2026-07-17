@@ -6,7 +6,7 @@ from src.database.db_conn import Base
 
 if TYPE_CHECKING:
     from src.models.compania import CompaniaModel
-    
+    from src.models.pedido import PedidoModel
 
 class PreventistaModel(Base):
     __tablename__ = "preventista"
@@ -19,6 +19,12 @@ class PreventistaModel(Base):
     compania: Mapped[CompaniaModel] = relationship(
         "CompaniaModel",
         back_populates="preventistas"
+    )
+
+    pedidos: Mapped[list[PedidoModel]] = relationship(
+        "PedidoModel",
+        back_populates="preventista",
+        cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:
