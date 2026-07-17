@@ -11,6 +11,7 @@ venv/
 
 # Configuración de IDE
 .idea/
+.vscode/
 
 # Archivos del sistema
 .DS_Store
