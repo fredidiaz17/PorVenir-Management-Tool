@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from src.database.db_conn import get_bd
-from src.schemas.etiqueta import Etiqueta, EtiquetaPatch
+from src.v1.schemas.etiqueta import Etiqueta, EtiquetaPatch
 from src.models.etiqueta import EtiquetaModel
 
 router = APIRouter()

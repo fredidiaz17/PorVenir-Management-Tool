@@ -6,7 +6,7 @@ from src.database.db_conn import get_bd
 
 from src.models.marca import MarcaModel
 
-from src.schemas.marca import Marca, MarcaPatch
+from src.v1.schemas.marca import Marca, MarcaPatch
     
 router = APIRouter() 
 

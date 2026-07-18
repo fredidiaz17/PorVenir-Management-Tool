@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from src.schemas.enums import UnidadMedida
+from src.v1.schemas.enums import UnidadMedida
 
 class BaseProducto(BaseModel): # Schema de comun productos
     cantidad_stock: float | None = 0.0

@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 from datetime import date
-from src.schemas.enums import EstadoPedido
+from src.v1.schemas.enums import EstadoPedido
 
 class BasePedido(BaseModel):
     fecha_pedido: date 

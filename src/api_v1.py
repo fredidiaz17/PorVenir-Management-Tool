@@ -2,15 +2,15 @@
 # El único router que interactúa directamente con el servidor (main.py)
 
 from fastapi import APIRouter
-from .routers.v1.compania import router as compania_router
-from .routers.v1.marca import router as marca_router
-from .routers.v1.producto import router as producto_router
-from .routers.v1.etiqueta import router as etiqueta_router
-from .routers.v1.oferta import router as oferta_router
-from .routers.v1.producto_etiqueta import router as producto_etiqueta_router
-from .routers.v1.preventista import router as preventista_router
-from .routers.v1.pedido import router as pedido_router
-from .routers.v1.detalle_pedido import router as detalle_pedido_router
+from .v1.routers.compania import router as compania_router
+from .v1.routers.marca import router as marca_router
+from .v1.routers.producto import router as producto_router
+from .v1.routers.etiqueta import router as etiqueta_router
+from .v1.routers.oferta import router as oferta_router
+from .v1.routers.producto_etiqueta import router as producto_etiqueta_router
+from .v1.routers.preventista import router as preventista_router
+from .v1.routers.pedido import router as pedido_router
+from .v1.routers.detalle_pedido import router as detalle_pedido_router
 
 router = APIRouter()
 

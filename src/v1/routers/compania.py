@@ -6,7 +6,7 @@ from sqlalchemy import select
 from src.models.compania import CompaniaModel
 
 # Schemas
-from src.schemas.compania import Compania
+from src.v1.schemas.compania import Compania
 
 from src.database.db_conn import get_bd # Para obtener la sesión de la bd
 

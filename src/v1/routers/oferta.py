@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from src.database.db_conn import get_bd
-from src.schemas.oferta import Oferta, OfertaPatch
+from src.v1.schemas.oferta import Oferta, OfertaPatch
 from src.models.oferta import OfertaModel
 
 router = APIRouter()

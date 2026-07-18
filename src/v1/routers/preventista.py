@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from src.database.db_conn import get_bd
-from src.schemas.preventista import Preventista, PreventistaPatch
+from src.v1.schemas.preventista import Preventista, PreventistaPatch
 from src.models.preventista import PreventistaModel
 
 router = APIRouter()

@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from datetime import datetime
-from src.schemas.enums import TipoOferta, EstadoOferta
+from src.v1.schemas.enums import TipoOferta, EstadoOferta
+
+# Modelo de oferta
 
 class BaseOferta(BaseModel):
     nombre: str
@@ -26,3 +28,41 @@ class OfertaPatch(BaseModel):
     fecha_inicio: datetime | None = None
     fecha_fin: datetime | None = None
     estado: EstadoOferta | None = None
+
+# Tablas intermedias de Oferta
+
+# Modelo oferta_producto
+
+class BaseOfertaProducto(BaseModel):
+    id_oferta: int
+    id_producto: int
+
+class OfertaProducto(BaseOfertaProducto):
+    pass
+
+# Modelo oferta_etiqueta
+
+class BaseOfertaEtiqueta(BaseModel):
+    id_oferta: int
+    id_etiqueta: int
+
+class OfertaEtiqueta(BaseOfertaEtiqueta):
+    pass
+
+# Modelo oferta_marca
+
+class BaseOfertaMarca(BaseModel):
+    id_oferta: int
+    id_marca: int
+
+class OfertaMarca(BaseOfertaMarca):
+    pass
+
+# Modelo oferta_compania
+
+class BaseOfertaCompania(BaseModel):
+    id_oferta: int
+    id_compania: int
+
+class OfertaCompania(BaseOfertaCompania):
+    pass

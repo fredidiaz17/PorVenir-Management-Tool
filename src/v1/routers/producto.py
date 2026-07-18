@@ -1,11 +1,11 @@
-from src.schemas.producto import Producto
+
 from fastapi import APIRouter, Depends      
 from src.database.db_conn import get_bd
 
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-from src.schemas.producto import Producto, ProductoPatch
+from src.v1.schemas.producto import Producto, ProductoPatch
 
 from src.models.producto import ProductoModel
 
