@@ -5,6 +5,7 @@ from sqlalchemy import select
 from src.database.db_conn import get_bd
 
 from src.models.marca import MarcaModel
+from src.models.oferta import OfertaModel
 
 from src.v1.schemas.marca import Marca, MarcaPatch
     
@@ -85,4 +86,44 @@ def delete_marca(marca_id: int, db: Session = Depends(get_bd)):
     except Exception as e:
         return {"status": "error", "message": str(e), "origin": e.orig}
     
-    return {"status": "ok", "message": "Compañia eliminada exitosamente"}    
+    return {"status": "ok", "message": "Compañia eliminada exitosamente"}
+
+
+# N:M con Oferta
+
+# Todas las ofertas que se aplican a la marca dada.
+@router.get("/{marca_id}/ofertas")
+def get_ofertas_marca(marca_id: int, db: Session = Depends(get_bd)):
+    marca = db.get(MarcaModel, marca_id)
+    if marca is None: 
+            return {"status": "error", "message": "Marca no encontrada"}
+
+    return {"status": "ok", "data": marca.ofertas}
+
+
+@router.post("/{marca_id}/ofertas/{id_oferta}")
+def post_oferta_marca(marca_id: int, id_oferta: int, db: Session = Depends(get_bd)):
+    marca = db.get(MarcaModel, marca_id)
+    offer = db.get(OfertaModel, id_oferta)
+    if marca is None or offer is None: 
+            return {"status": "error", "message": "Oferta o marca no encontrada"}
+    
+    offer.marcas.append(marca)
+    db.commit()
+    return {"status": "ok", "message": "Oferta aplicada a marca exitosamente"}
+
+
+@router.delete("/{marca_id}/ofertas/{id_oferta}")
+def delete_oferta_marca(marca_id: int, id_oferta: int, db: Session = Depends(get_bd)):
+    marca = db.get(MarcaModel, marca_id)
+    offer = db.get(OfertaModel, id_oferta)
+
+    if marca is None or offer is None: 
+            return {"status": "error", "message": "Oferta o marca no encontrada"}
+
+    if offer not in marca.ofertas:
+        return {"status": "error", "message": "Oferta no aplicada a marca"}
+
+    marca.ofertas.remove(offer) # Elimina la relación oferta_marca respectiva
+    db.commit()
+    return {"status": "ok", "message": "Oferta eliminada de marca exitosamente"}

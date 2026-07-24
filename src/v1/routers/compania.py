@@ -4,6 +4,7 @@ from sqlalchemy import select
 
 # Modelos
 from src.models.compania import CompaniaModel
+from src.models.oferta import OfertaModel
 
 # Schemas
 from src.v1.schemas.compania import Compania
@@ -78,3 +79,42 @@ def delete_compania(compania_id: int, db: Session = Depends(get_bd)):
         return {"status": "error", "message": str(e), "origin": e.orig}
     
     return {"status": "ok", "message": "Compañia eliminada exitosamente"}    
+
+# N:M con Oferta
+
+# Todas las ofertas que se aplican a la compania dada.
+@router.get("/{compania_id}/ofertas")
+def get_ofertas_compania(compania_id: int, db: Session = Depends(get_bd)):
+    compania = db.get(CompaniaModel, compania_id)
+    if compania is None: 
+            return {"status": "error", "message": "Compañia no encontrada"}
+
+    return {"status": "ok", "data": compania.ofertas}
+
+
+@router.post("/{compania_id}/ofertas/{id_oferta}")
+def post_oferta_compania(compania_id: int, id_oferta: int, db: Session = Depends(get_bd)):
+    compania = db.get(CompaniaModel, compania_id)
+    offer = db.get(OfertaModel, id_oferta)
+    if compania is None or offer is None: 
+            return {"status": "error", "message": "Oferta o compañia no encontrada"}
+    
+    offer.companias.append(compania)
+    db.commit()
+    return {"status": "ok", "message": "Oferta aplicada a compañia exitosamente"}
+
+
+@router.delete("/{compania_id}/ofertas/{id_oferta}")
+def delete_oferta_compania(compania_id: int, id_oferta: int, db: Session = Depends(get_bd)):
+    compania = db.get(CompaniaModel, compania_id)
+    offer = db.get(OfertaModel, id_oferta)
+
+    if compania is None or offer is None: 
+            return {"status": "error", "message": "Oferta o compañia no encontrada"}
+
+    if offer not in compania.ofertas:
+        return {"status": "error", "message": "Oferta no aplicada a compañia"}
+
+    compania.ofertas.remove(offer)
+    db.commit()
+    return {"status": "ok", "message": "Oferta eliminada de compañia exitosamente"}

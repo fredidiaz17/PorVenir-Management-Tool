@@ -1,4 +1,5 @@
 
+from sqlalchemy.engine import result
 from fastapi import APIRouter, Depends      
 from src.database.db_conn import get_bd
 
@@ -8,6 +9,7 @@ from sqlalchemy import select
 from src.v1.schemas.producto import Producto, ProductoPatch
 
 from src.models.producto import ProductoModel
+from src.models.oferta import OfertaModel
 
 router = APIRouter()
 
@@ -90,3 +92,44 @@ def delete_producto(id_producto: int, db: Session = Depends(get_bd)):
         return {"status": "error", "message": str(e)} 
 
 
+
+# N:M con Oferta
+
+# Todas las ofertas que se aplican al producto dado.
+@router.get("/{id_producto}/ofertas")
+def get_ofertas_productos(id_producto: int, db: Session = Depends(get_bd)):
+    product = db.get(ProductoModel, id_producto)
+    if product is None: 
+            return {"status": "error", "message": "Producto no encontrado"}
+
+    return {"status": "ok", "data": product.ofertas} # SQLAlchemy hace el Join automaticamente.
+
+
+@router.post("/{id_producto}/ofertas/{id_oferta}")
+def post_oferta_producto(id_producto: int,id_oferta: int, db: Session = Depends(get_bd)):
+    
+    product = db.get(ProductoModel, id_producto)
+    offer = db.get(OfertaModel, id_oferta)
+    if product is None or offer is None: 
+            return {"status": "error", "message": "Oferta o producto no encontrado"}
+    
+    # Se asigna el producto a la oferta por medio de la relación que ya tenia definida.
+    offer.productos.append(product)
+    db.commit()
+    return {"status": "ok", "message": "Oferta aplicada a producto exitosamente"}
+
+
+@router.delete("/{id_producto}/ofertas/{id_oferta}")
+def delete_oferta_producto(id_producto: int,id_oferta: int, db: Session = Depends(get_bd)):
+    product = db.get(ProductoModel, id_producto)
+    offer = db.get(OfertaModel, id_oferta)
+
+    if product is None or offer is None: 
+            return {"status": "error", "message": "Oferta o producto no encontrado"}
+
+    if offer not in product.ofertas:
+        return {"status": "error", "message": "Oferta no aplicada a producto"}
+
+    product.ofertas.remove(offer)
+    db.commit()
+    return {"status": "ok", "message": "Oferta eliminada de producto exitosamente"}

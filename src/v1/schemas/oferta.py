@@ -31,38 +31,21 @@ class OfertaPatch(BaseModel):
 
 # Tablas intermedias de Oferta
 
-# Modelo oferta_producto
-
-class BaseOfertaProducto(BaseModel):
+class BaseOfertaTabla(BaseModel):
     id_oferta: int
+
+# oferta_producto
+class OfertaProducto(BaseOfertaTabla):
     id_producto: int
 
-class OfertaProducto(BaseOfertaProducto):
-    pass
-
-# Modelo oferta_etiqueta
-
-class BaseOfertaEtiqueta(BaseModel):
-    id_oferta: int
+# oferta_etiqueta
+class OfertaEtiqueta(BaseOfertaTabla):
     id_etiqueta: int
 
-class OfertaEtiqueta(BaseOfertaEtiqueta):
-    pass
-
-# Modelo oferta_marca
-
-class BaseOfertaMarca(BaseModel):
-    id_oferta: int
+# oferta_marca
+class OfertaMarca(BaseOfertaTabla):
     id_marca: int
 
-class OfertaMarca(BaseOfertaMarca):
-    pass
-
-# Modelo oferta_compania
-
-class BaseOfertaCompania(BaseModel):
-    id_oferta: int
+# oferta_compania
+class OfertaCompania(BaseOfertaTabla):
     id_compania: int
-
-class OfertaCompania(BaseOfertaCompania):
-    pass

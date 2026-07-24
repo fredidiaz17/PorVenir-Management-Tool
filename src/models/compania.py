@@ -1,7 +1,12 @@
 from __future__ import annotations
-from sqlalchemy import String
+from typing import TYPE_CHECKING
+from sqlalchemy import String, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.db_conn import Base
+
+if TYPE_CHECKING:
+    from src.models.marca import MarcaModel
+    from src.models.oferta import OfertaModel
 
 
 class CompaniaModel(Base):
@@ -17,6 +22,13 @@ class CompaniaModel(Base):
         cascade="all, delete-orphan" # Cuando se elimina una compania, se eliminan todas sus marcas
     )
 
+    # Relación con oferta_compania
+    ofertas : Mapped[list[OfertaModel]] = relationship(
+        "OfertaModel",
+        secondary="oferta_compania",
+        back_populates="companias",
+        cascade="all, delete-orphan"
+    )
     
     def __repr__(self) -> str:
         return f"Compania(id_compania={self.id_compania!r}, nombre={self.nombre!r})"

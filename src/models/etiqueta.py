@@ -6,6 +6,7 @@ from src.database.db_conn import Base
 
 if TYPE_CHECKING:
     from src.models.producto_etiqueta import ProductoEtiquetaModel
+    from src.models.oferta import OfertaModel
 
 class EtiquetaModel(Base):
     __tablename__ = "etiqueta"
@@ -19,6 +20,14 @@ class EtiquetaModel(Base):
     productos: Mapped[list[ProductoEtiquetaModel]] = relationship(
         "ProductoEtiquetaModel",
         back_populates="etiqueta",
+        cascade="all, delete-orphan"
+    )
+
+    # Relacion con oferta_etiqueta
+    ofertas: Mapped[list[OfertaModel]] = relationship(
+        "OfertaModel",
+        secondary="oferta_etiqueta",
+        back_populates="etiquetas",
         cascade="all, delete-orphan"
     )
 

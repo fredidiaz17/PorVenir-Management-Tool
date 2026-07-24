@@ -8,6 +8,7 @@ from src.database.db_conn import Base
 if TYPE_CHECKING:
     from src.models.compania import CompaniaModel
     from src.models.producto import ProductoModel
+    from src.models.oferta import OfertaModel
 
 class MarcaModel(Base):
     __tablename__ = "marca"
@@ -26,6 +27,13 @@ class MarcaModel(Base):
     productos: Mapped[list[ProductoModel]] = relationship(
         "ProductoModel", 
         back_populates="marca", 
+        cascade="all, delete-orphan"
+    )
+
+    ofertas: Mapped[list[OfertaModel]] = relationship(
+        "OfertaModel",
+        secondary="oferta_marca",
+        back_populates="marcas",
         cascade="all, delete-orphan"
     )
 

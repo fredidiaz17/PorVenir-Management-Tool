@@ -4,12 +4,13 @@ from typing import TYPE_CHECKING
 from sqlalchemy import String, Float,ForeignKey, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.db_conn import Base
-from src.schemas.enums import UnidadMedida
+from src.v1.schemas.enums import UnidadMedida
 
 if TYPE_CHECKING:
     from src.models.marca import MarcaModel
     from src.models.producto_etiqueta import ProductoEtiquetaModel
     from src.models.detalle_pedido import DetallePedidoModel
+    from src.models.oferta import OfertaModel
     
 class ProductoModel(Base):
     __tablename__ = "producto"
@@ -43,7 +44,14 @@ class ProductoModel(Base):
         cascade="all, delete-orphan"
     )
     
-    # Producto tiene otras relaciones, faltan por implementar
+    # Relación con oferta
+    ofertas : Mapped[list[OfertaModel]] = relationship(
+        "OfertaModel",
+        secondary="oferta_producto",
+        back_populates="productos",
+        cascade="all, delete-orphan"
+    )
+
     def __repr__(self) -> str:
         return f"""ProductoModel(id_producto={self.id_producto!r}, nombre={self.nombre!r}, id_marca={self.id_marca!r}, 
         cantidad_stock={self.cantidad_stock!r}, unidad_medida={self.unidad_medida!r}, precio_compra={self.precio_compra!r}, 

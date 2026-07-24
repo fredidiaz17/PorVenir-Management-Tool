@@ -75,4 +75,36 @@ def delete_oferta(id_oferta: int, db: Session = Depends(get_bd)):
         db.commit()
         return {"status": "ok", "message": "Oferta eliminada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        return {"status": "error", "message": str(e)}
+
+# N:M de Ofertas con Productos, Marcas, Etiquetas y Companias
+
+# GET
+
+@router.get("/{id_oferta}/productos")
+def get_productos_ofertas(id_oferta: int, db: Session = Depends(get_bd)):
+    offer = db.get(OfertaModel, id_oferta)
+    if offer is None:
+        return {"status": "error", "message": "Oferta no encontrada"}
+    return {"status": "ok", "data": offer.productos}
+
+@router.get("/{id_oferta}/marcas")
+def get_marcas_ofertas(id_oferta: int, db: Session = Depends(get_bd)):
+    offer = db.get(OfertaModel, id_oferta)
+    if offer is None:
+        return {"status": "error", "message": "Oferta no encontrada"}
+    return {"status": "ok", "data": offer.marcas}
+
+@router.get("/{id_oferta}/etiquetas")
+def get_etiquetas_ofertas(id_oferta: int, db: Session = Depends(get_bd)):
+    offer = db.get(OfertaModel, id_oferta)
+    if offer is None:
+        return {"status": "error", "message": "Oferta no encontrada"}
+    return {"status": "ok", "data": offer.etiquetas}
+
+@router.get("/{id_oferta}/companias")
+def get_companias_ofertas(id_oferta: int, db: Session = Depends(get_bd)):
+    offer = db.get(OfertaModel, id_oferta)
+    if offer is None:
+        return {"status": "error", "message": "Oferta no encontrada"}
+    return {"status": "ok", "data": offer.companias}

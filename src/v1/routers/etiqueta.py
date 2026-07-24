@@ -4,6 +4,7 @@ from sqlalchemy import select
 from src.database.db_conn import get_bd
 from src.v1.schemas.etiqueta import Etiqueta, EtiquetaPatch
 from src.models.etiqueta import EtiquetaModel
+from src.models.oferta import OfertaModel
 
 router = APIRouter()
 
@@ -77,3 +78,41 @@ def delete_etiqueta(id_etiqueta: int, db: Session = Depends(get_bd)):
         return {"status": "ok", "message": "Etiqueta eliminada exitosamente"} 
     except Exception as e:
         return {"status": "error", "message": str(e)} 
+
+# N:M con Oferta
+
+# Todas las ofertas que se aplican a la etiqueta dada.
+@router.get("/{id_etiqueta}/ofertas")
+def get_ofertas_etiqueta(id_etiqueta: int, db: Session = Depends(get_bd)):
+    etiqueta = db.get(EtiquetaModel, id_etiqueta)
+    if etiqueta is None: 
+            return {"status": "error", "message": "Etiqueta no encontrada"}
+
+    return {"status": "ok", "data": etiqueta.ofertas}
+
+@router.post("/{id_etiqueta}/ofertas/{id_oferta}")
+def post_oferta_etiqueta(id_etiqueta: int, id_oferta: int, db: Session = Depends(get_bd)):
+    etiqueta = db.get(EtiquetaModel, id_etiqueta)
+    offer = db.get(OfertaModel, id_oferta)
+    if etiqueta is None or offer is None: 
+            return {"status": "error", "message": "Oferta o etiqueta no encontrada"}
+    
+    offer.etiquetas.append(etiqueta)
+    db.commit()
+    return {"status": "ok", "message": "Oferta aplicada a etiqueta exitosamente"}
+
+
+@router.delete("/{id_etiqueta}/ofertas/{id_oferta}")
+def delete_oferta_etiqueta(id_etiqueta: int, id_oferta: int, db: Session = Depends(get_bd)):
+    etiqueta = db.get(EtiquetaModel, id_etiqueta)
+    offer = db.get(OfertaModel, id_oferta)
+
+    if etiqueta is None or offer is None: 
+            return {"status": "error", "message": "Oferta o etiqueta no encontrada"}
+
+    if offer not in etiqueta.ofertas:
+        return {"status": "error", "message": "Oferta no aplicada a etiqueta"}
+
+    etiqueta.ofertas.remove(offer)
+    db.commit()
+    return {"status": "ok", "message": "Oferta eliminada de etiqueta exitosamente"}
