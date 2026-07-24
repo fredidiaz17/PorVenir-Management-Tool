@@ -71,7 +71,7 @@ CREATE TABLE `oferta` (
   `id_oferta` integer AUTO_INCREMENT PRIMARY KEY,
   `nombre` varchar(100),
   `descripcion` text,
-  `tipo_oferta` enum('Descuento', 'Combo', 'Otro'),
+  `tipo_oferta` enum('Descuento', 'Combo'),
   `valor_descuento` decimal(10,2),
   `cantidad_minima` int,
   `producto_regalo` integer,
@@ -120,7 +120,7 @@ CREATE TABLE `deuda` (
 CREATE TABLE `venta` (
   `id_venta` integer AUTO_INCREMENT PRIMARY KEY,
   `fecha` date,
-  `medio_pago` enum('Efectivo', 'Digital', 'Mixto', 'Fiado', 'Otro'),
+  `medio_pago` enum('Efectivo', 'Digital', 'Mixto', 'Fiado'),
   `total` decimal(10,2),
   `id_cliente` integer
 );
