@@ -24,7 +24,7 @@ class VentaModel(Base):
         back_populates="ventas"
     )
 
-    detalles: Mapped[list[DetalleVentaModel]] = relationship(
+    detalle_venta: Mapped[list[DetalleVentaModel]] = relationship(
         "DetalleVentaModel",
         back_populates="venta",
         cascade="all, delete-orphan"

@@ -11,7 +11,8 @@ if TYPE_CHECKING:
     from src.models.producto_etiqueta import ProductoEtiquetaModel
     from src.models.detalle_pedido import DetallePedidoModel
     from src.models.oferta import OfertaModel
-    
+    from src.models.detalle_venta import DetalleVentaModel
+
 class ProductoModel(Base):
     __tablename__ = "producto"
     
@@ -34,6 +35,12 @@ class ProductoModel(Base):
     # Relación con producto_etiqueta
     etiquetas: Mapped[list[ProductoEtiquetaModel]] = relationship(
         "ProductoEtiquetaModel",
+        back_populates="producto",
+        cascade="all, delete-orphan"
+    )
+
+    detalle_venta: Mapped[list[DetalleVentaModel]] = relationship(
+        "DetalleVentaModel",
         back_populates="producto",
         cascade="all, delete-orphan"
     )
