@@ -8,6 +8,9 @@ from .oferta import OfertaModel
 from .preventista import PreventistaModel
 from .pedido import PedidoModel
 from .detalle_pedido import DetallePedidoModel
+from .cliente import ClienteModel
+from .venta import VentaModel
+from .detalle_venta import DetalleVentaModel
 
 # Opcional, pero permite controlar que expongo al exterior
 __all__ = [
@@ -21,4 +24,7 @@ __all__ = [
     "PreventistaModel",
     "PedidoModel",
     "DetallePedidoModel",
+    "ClienteModel",
+    "VentaModel",
+    "DetalleVentaModel",
 ]

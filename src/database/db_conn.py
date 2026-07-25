@@ -25,6 +25,9 @@ def get_bd():
     db = SessionLocal() # Abrir la sesión. 
     try:
         yield db # Prestar la sesión
+    except Exception:
+        db.rollback() # Deshacer cambios en caso de error.
+        raise # Relanzar la excepción.
     finally:
         db.close() # Y finalmente, cerrar la sesión.
 
