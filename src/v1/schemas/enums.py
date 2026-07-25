@@ -33,3 +33,11 @@ class EstadoPedido(str, Enum):
     RECIBIDO = "Recibido"
     RECHAZADO = "Rechazado"
     CANCELADO = "Cancelado"
+
+# Enums usado por venta
+
+class MedioPago(str, Enum):
+    EFECTIVO = "Efectivo"
+    DIGITAL = "Digital"
+    MIXTO = "Mixto"
+    FIADO = "Fiado"
