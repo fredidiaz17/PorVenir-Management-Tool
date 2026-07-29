@@ -1,5 +1,5 @@
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 from src.database.db_conn import get_bd
@@ -30,7 +30,7 @@ def update_stock(id_pedido: int, db: Session):
 
         # Se suma la cantidad del pedido al stock del producto
         query_producto.cantidad_stock += cantidad
-
+    db.flush()
     return True
 
 
@@ -67,16 +67,17 @@ def update_details(id_pedido: int, detalles: list[dict], db: Session, put = True
 
             # Se crea un set de tuplas de los detalles enviados simultaneamente
             detalles_ids.add((id_pedido, id_prod))
+
+        # Solo se ejecuta si es PUT, no patch
+        if put:
+            # Si el ID de existentes no se encuentra en detalles, se elimina
+            for id_tuple in existentes_ids:
+                if id_tuple not in detalles_ids:
+                    db.delete(db.get(DetallePedidoModel, id_tuple))
+
     except Exception as e:
         return False
     
-    # Solo se ejecuta si es PUT, no patch
-    if put:
-        # Si el ID de existentes no se encuentra en detalles, se elimina
-        for id_tuple in existentes_ids:
-            if id_tuple not in detalles_ids:
-                db.delete(db.get(DetallePedidoModel, id_tuple))
-
     return True
 
 
@@ -102,7 +103,7 @@ def get_pedido(id_pedido: int, db: Session = Depends(get_bd)):
     )
     result = db.execute(stmt).scalar_one_or_none()
     if result is None: 
-        return {"status": "error", "message": "Pedido no encontrado"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Pedido no encontrado"})
     
     return {"status": "ok", "data": result} 
 
@@ -119,7 +120,7 @@ def create_pedido(pedido: Pedido, db: Session = Depends(get_bd)):
         detalles_pedido = new_pedido.pop("detalles_pedido", None)
 
         if detalles_pedido is None:
-            return {"status": "error", "message": "El pedido no puede estar vacio"}
+            raise HTTPException(status_code=400, detail={"status": "error", "message": "El pedido no puede estar vacio"})
 
         # Se crea el pedido
         new_pedido = PedidoModel(**new_pedido)
@@ -140,7 +141,7 @@ def create_pedido(pedido: Pedido, db: Session = Depends(get_bd)):
         db.commit()
         return {"status": "ok", "message": "Pedido creado exitosamente"}
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 
 # --- UPDATE ---
@@ -154,19 +155,19 @@ def update_pedido(id_pedido: int, pedido: Pedido, db: Session = Depends(get_bd))
     try:
         query_pedido = db.get(PedidoModel, id_pedido)
         if not query_pedido:
-            return {"status": "error", "message": "Pedido no encontrado"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Pedido no encontrado"}) 
         
         pedido_dict = pedido.model_dump()
         detalles_pedido = pedido_dict.pop("detalles_pedido", None)
 
         if detalles_pedido is None:
-            return {"status": "error", "message": "El pedido a actualizar no puede estar vacío"}
+            raise HTTPException(status_code=400, detail={"status": "error", "message": "El pedido a actualizar no puede estar vacío"})
         
         try:
             for key, value in pedido_dict.items():
                 setattr(query_pedido, key, value)
         except Exception:
-            return {"status": "error", "message": "Error al actualizar el pedido"} 
+            raise HTTPException(status_code=400, detail={"status": "error", "message": "Error al actualizar el pedido"}) 
         
         
         # Si el estado cambia a "Recibido", se debe aumentar el stock
@@ -174,27 +175,27 @@ def update_pedido(id_pedido: int, pedido: Pedido, db: Session = Depends(get_bd))
         if query_pedido.estado == EstadoPedido.RECIBIDO:
             updated = update_stock(id_pedido, db=db)
             if not updated:
-                return {"status": "error", "message": "No se pudo actualizar el stock"} 
+                raise HTTPException(status_code=400, detail={"status": "error", "message": "No se pudo actualizar el stock"}) 
 
         # Se reemplazan los detalles (detalles_pedido)
 
         updated = update_details(id_pedido, detalles_pedido, db)
         if not updated:
-            return {"status": "error", "message": "No se pudo actualizar los detalles"} 
+            raise HTTPException(status_code=400, detail={"status": "error", "message": "No se pudo actualizar los detalles"}) 
 
         db.commit()
         db.refresh(query_pedido)
 
         return {"status": "ok", "message": "Pedido actualizado exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 @router.patch("/{id_pedido}")
 def update_pedido_parcial(id_pedido: int, pedido: PedidoPatch, db: Session = Depends(get_bd)):
     try:
         query_pedido = db.get(PedidoModel, id_pedido)
         if not query_pedido:
-            return {"status": "error", "message": "Pedido no encontrado"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Pedido no encontrado"}) 
         
         pedido_dict = pedido.model_dump()
         
@@ -209,18 +210,18 @@ def update_pedido_parcial(id_pedido: int, pedido: PedidoPatch, db: Session = Dep
         if query_pedido.estado == EstadoPedido.RECIBIDO:
             updated = update_stock(id_pedido=id_pedido, db=db)
             if not updated:
-                return {"status": "error", "message": "No se pudo actualizar el stock"}
+                raise HTTPException(status_code=400, detail={"status": "error", "message": "No se pudo actualizar el stock"})
         
         if detalles is not None:
             updated = update_details(id_pedido=id_pedido, detalles=detalles, db=db, put = False)
             if not updated:
-                return {"status": "error", "message": "No se pudo actualizar los detalles"} 
+                raise HTTPException(status_code=400, detail={"status": "error", "message": "No se pudo actualizar los detalles"}) 
 
         db.commit()
         db.refresh(query_pedido)
         return {"status": "ok", "message": "Pedido actualizado exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 # --- DELETE ---
 # Si no existe pedido, tampoco sus detalles. El On delete Cascade se encargara de esto.
@@ -229,9 +230,9 @@ def delete_pedido(id_pedido: int, db: Session = Depends(get_bd)):
     try:
         query_pedido = db.get(PedidoModel, id_pedido)
         if not query_pedido:
-            return {"status": "error", "message": "Pedido no encontrado"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Pedido no encontrado"}) 
         db.delete(query_pedido)
         db.commit()
         return {"status": "ok", "message": "Pedido eliminado exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 

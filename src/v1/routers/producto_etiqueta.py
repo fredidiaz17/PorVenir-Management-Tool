@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from src.database.db_conn import get_bd
@@ -21,7 +21,7 @@ def get_producto_etiqueta(id_producto: int, id_etiqueta: int, db: Session = Depe
     )
     result = db.execute(stmt).scalar_one_or_none()
     if result is None: 
-        return {"status": "error", "message": "Relación no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Relación no encontrada"})
     return {"status": "ok", "data": result} 
 
 @router.post("/")
@@ -33,7 +33,7 @@ def create_producto_etiqueta(producto_etiqueta: ProductoEtiqueta, db: Session = 
         db.refresh(new_relacion)
         return {"status": "ok", "message": "Relación creada exitosamente"}
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 @router.put("/{id_producto}/{id_etiqueta}")
 def update_producto_etiqueta(id_producto: int, id_etiqueta: int, producto_etiqueta: ProductoEtiqueta, db: Session = Depends(get_bd)):
@@ -44,7 +44,7 @@ def update_producto_etiqueta(id_producto: int, id_etiqueta: int, producto_etique
         )
         query_relacion = db.execute(stmt).scalar_one_or_none()
         if not query_relacion:
-            return {"status": "error", "message": "Relación no encontrada"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Relación no encontrada"}) 
         
         query_relacion.estado = producto_etiqueta.estado
 
@@ -52,7 +52,7 @@ def update_producto_etiqueta(id_producto: int, id_etiqueta: int, producto_etique
         db.refresh(query_relacion)
         return {"status": "ok", "message": "Relación actualizada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 @router.delete("/{id_producto}/{id_etiqueta}")
 def delete_producto_etiqueta(id_producto: int, id_etiqueta: int, db: Session = Depends(get_bd)):
@@ -63,9 +63,9 @@ def delete_producto_etiqueta(id_producto: int, id_etiqueta: int, db: Session = D
         )
         query_relacion = db.execute(stmt).scalar_one_or_none()
         if not query_relacion:
-            return {"status": "error", "message": "Relación no encontrada"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Relación no encontrada"}) 
         db.delete(query_relacion)
         db.commit()
         return {"status": "ok", "message": "Relación eliminada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 

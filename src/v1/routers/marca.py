@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -23,7 +24,7 @@ def get_marcas(db: Session = Depends(get_bd)):
 def get_marca(marca_id: int, db: Session = Depends(get_bd)):
     query_marca = db.get(MarcaModel, marca_id) # Se busca la marca por PK.
     if query_marca is None:
-        return {"status": "error", "message": "Marca no encontrada"} # Si no se encuentra la marca.
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Marca no encontrada"}) # Si no se encuentra la marca.
     return {"status": "ok", "data": query_marca}
 
 @router.post("/") 
@@ -34,7 +35,7 @@ def create_marca(marca: Marca, db: Session = Depends(get_bd)):
         db.commit()
         db.refresh(new_marca)
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Marca creada exitosamente"}
     
@@ -44,7 +45,7 @@ def update_marca(marca_id: int, marca: Marca, db: Session = Depends(get_bd)):
     try:
         query_marca = db.get(MarcaModel, marca_id) # Se busca la marca por PK.
         if not query_marca: # Si no se encuentra la marca.
-            return {"status": "error", "message": "Marca no encontrada"}
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Marca no encontrada"})
         
         query_marca.nombre = marca.nombre
         query_marca.descripcion = marca.descripcion
@@ -53,7 +54,7 @@ def update_marca(marca_id: int, marca: Marca, db: Session = Depends(get_bd)):
         db.commit() # Se confirma la transacción.
         db.refresh(query_marca) # Se actualiza la instancia con los datos de la base de datos (como el id).
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Compañia actualizada exitosamente"}
 
@@ -62,7 +63,7 @@ def update_marca_parcial(marca_id: int, marca: MarcaPatch, db: Session = Depends
     try:
         query_marca = db.get(MarcaModel, marca_id) 
         if not query_marca: 
-            return {"status": "error", "message": "Marca no encontrada"}
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Marca no encontrada"})
         
         for key, value in marca.model_dump().items():
             if value is not None:
@@ -71,7 +72,7 @@ def update_marca_parcial(marca_id: int, marca: MarcaPatch, db: Session = Depends
         db.commit() 
         db.refresh(query_marca) 
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Compañia actualizada exitosamente"}
 
@@ -80,11 +81,11 @@ def delete_marca(marca_id: int, db: Session = Depends(get_bd)):
     try:
         query_marca = db.get(MarcaModel, marca_id)
         if not query_marca: 
-            return {"status": "error", "message": "Marca no encontrada"}
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Marca no encontrada"})
         db.delete(query_marca)
         db.commit()
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Compañia eliminada exitosamente"}
 
@@ -96,7 +97,7 @@ def delete_marca(marca_id: int, db: Session = Depends(get_bd)):
 def get_ofertas_marca(marca_id: int, db: Session = Depends(get_bd)):
     marca = db.get(MarcaModel, marca_id)
     if marca is None: 
-            return {"status": "error", "message": "Marca no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Marca no encontrada"})
 
     return {"status": "ok", "data": marca.ofertas}
 
@@ -106,7 +107,7 @@ def post_oferta_marca(marca_id: int, id_oferta: int, db: Session = Depends(get_b
     marca = db.get(MarcaModel, marca_id)
     offer = db.get(OfertaModel, id_oferta)
     if marca is None or offer is None: 
-            return {"status": "error", "message": "Oferta o marca no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta o marca no encontrada"})
     
     offer.marcas.append(marca)
     db.commit()
@@ -119,10 +120,10 @@ def delete_oferta_marca(marca_id: int, id_oferta: int, db: Session = Depends(get
     offer = db.get(OfertaModel, id_oferta)
 
     if marca is None or offer is None: 
-            return {"status": "error", "message": "Oferta o marca no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta o marca no encontrada"})
 
     if offer not in marca.ofertas:
-        return {"status": "error", "message": "Oferta no aplicada a marca"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no aplicada a marca"})
 
     marca.ofertas.remove(offer) # Elimina la relación oferta_marca respectiva
     db.commit()

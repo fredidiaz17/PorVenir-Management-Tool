@@ -1,6 +1,5 @@
 
-from sqlalchemy.engine import result
-from fastapi import APIRouter, Depends      
+from fastapi import APIRouter, Depends, HTTPException  
 from src.database.db_conn import get_bd
 
 from sqlalchemy.orm import Session
@@ -24,7 +23,7 @@ def get_producto(id_producto: int, db: Session = Depends(get_bd)):
     stmt = select(ProductoModel).where(ProductoModel.id_producto == id_producto)
     result = db.execute(stmt).scalar_one_or_none()
     if result is None: 
-        return {"status": "error", "message": "Producto no encontrado"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Producto no encontrado"})
     return {"status": "ok", "data": result} 
 
 @router.post("/")
@@ -37,14 +36,14 @@ def create_producto(producto: Producto, db: Session = Depends(get_bd)):
         
         return {"status": "ok", "message": "Producto creado exitosamente"}
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 @router.put("/{id_producto}")
 def update_producto(id_producto: int, producto: Producto, db: Session = Depends(get_bd)):
     try:
         query_producto = db.get(ProductoModel, id_producto) # Se busca el producto por PK.
         if not query_producto: # Si no se encuentra el producto.
-            return {"status": "error", "message": "Producto no encontrado"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Producto no encontrado"}) 
         
         # Si se encuentra el producto.
         query_producto.nombre = producto.nombre
@@ -59,14 +58,14 @@ def update_producto(id_producto: int, producto: Producto, db: Session = Depends(
         db.refresh(query_producto)
         return {"status": "ok", "message": "Producto actualizado exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 @router.patch("/{id_producto}")
 def update_producto_parcial(id_producto: int, producto: ProductoPatch, db: Session = Depends(get_bd)):
     try:
         query_producto = db.get(ProductoModel, id_producto) # Se busca el producto por PK.
         if not query_producto: # Si no se encuentra el producto.
-            return {"status": "error", "message": "Producto no encontrado"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Producto no encontrado"}) 
         
         # Si se encuentra el producto.
         for key, value in producto.model_dump().items():
@@ -77,19 +76,19 @@ def update_producto_parcial(id_producto: int, producto: ProductoPatch, db: Sessi
         db.refresh(query_producto)
         return {"status": "ok", "message": "Producto actualizado exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 @router.delete("/{id_producto}")
 def delete_producto(id_producto: int, db: Session = Depends(get_bd)):
     try:
         query_producto = db.get(ProductoModel, id_producto)
         if not query_producto: # Si no se encuentra el producto.
-            return {"status": "error", "message": "Producto no encontrado"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Producto no encontrado"}) 
         db.delete(query_producto)
         db.commit()
         return {"status": "ok", "message": "Producto eliminado exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 
 
@@ -100,7 +99,7 @@ def delete_producto(id_producto: int, db: Session = Depends(get_bd)):
 def get_ofertas_productos(id_producto: int, db: Session = Depends(get_bd)):
     product = db.get(ProductoModel, id_producto)
     if product is None: 
-            return {"status": "error", "message": "Producto no encontrado"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Producto no encontrado"})
 
     return {"status": "ok", "data": product.ofertas} # SQLAlchemy hace el Join automaticamente.
 
@@ -111,7 +110,7 @@ def post_oferta_producto(id_producto: int,id_oferta: int, db: Session = Depends(
     product = db.get(ProductoModel, id_producto)
     offer = db.get(OfertaModel, id_oferta)
     if product is None or offer is None: 
-            return {"status": "error", "message": "Oferta o producto no encontrado"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta o producto no encontrado"})
     
     # Se asigna el producto a la oferta por medio de la relación que ya tenia definida.
     offer.productos.append(product)
@@ -125,10 +124,10 @@ def delete_oferta_producto(id_producto: int,id_oferta: int, db: Session = Depend
     offer = db.get(OfertaModel, id_oferta)
 
     if product is None or offer is None: 
-            return {"status": "error", "message": "Oferta o producto no encontrado"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta o producto no encontrado"})
 
     if offer not in product.ofertas:
-        return {"status": "error", "message": "Oferta no aplicada a producto"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no aplicada a producto"})
 
     product.ofertas.remove(offer)
     db.commit()

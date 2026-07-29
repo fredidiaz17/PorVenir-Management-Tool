@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from src.database.db_conn import get_bd
@@ -19,7 +19,7 @@ def get_etiqueta(id_etiqueta: int, db: Session = Depends(get_bd)):
     stmt = select(EtiquetaModel).where(EtiquetaModel.id_etiqueta == id_etiqueta)
     result = db.execute(stmt).scalar_one_or_none()
     if result is None: 
-        return {"status": "error", "message": "Etiqueta no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Etiqueta no encontrada"})
     return {"status": "ok", "data": result} 
 
 @router.post("/")
@@ -31,14 +31,14 @@ def create_etiqueta(etiqueta: Etiqueta, db: Session = Depends(get_bd)):
         db.refresh(new_etiqueta)
         return {"status": "ok", "message": "Etiqueta creada exitosamente"}
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)})
 
 @router.put("/{id_etiqueta}")
 def update_etiqueta(id_etiqueta: int, etiqueta: Etiqueta, db: Session = Depends(get_bd)):
     try:
         query_etiqueta = db.get(EtiquetaModel, id_etiqueta)
         if not query_etiqueta:
-            return {"status": "error", "message": "Etiqueta no encontrada"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Etiqueta no encontrada"}) 
         
         query_etiqueta.nombre_etiqueta = etiqueta.nombre_etiqueta
         query_etiqueta.descripcion_etiqueta = etiqueta.descripcion_etiqueta
@@ -48,14 +48,14 @@ def update_etiqueta(id_etiqueta: int, etiqueta: Etiqueta, db: Session = Depends(
         db.refresh(query_etiqueta)
         return {"status": "ok", "message": "Etiqueta actualizada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 @router.patch("/{id_etiqueta}")
 def update_etiqueta_parcial(id_etiqueta: int, etiqueta: EtiquetaPatch, db: Session = Depends(get_bd)):
     try:
         query_etiqueta = db.get(EtiquetaModel, id_etiqueta)
         if not query_etiqueta:
-            return {"status": "error", "message": "Etiqueta no encontrada"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Etiqueta no encontrada"}) 
         
         for key, value in etiqueta.model_dump().items():
             if value is not None:
@@ -65,19 +65,19 @@ def update_etiqueta_parcial(id_etiqueta: int, etiqueta: EtiquetaPatch, db: Sessi
         db.refresh(query_etiqueta)
         return {"status": "ok", "message": "Etiqueta actualizada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 @router.delete("/{id_etiqueta}")
 def delete_etiqueta(id_etiqueta: int, db: Session = Depends(get_bd)):
     try:
         query_etiqueta = db.get(EtiquetaModel, id_etiqueta)
         if not query_etiqueta:
-            return {"status": "error", "message": "Etiqueta no encontrada"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Etiqueta no encontrada"}) 
         db.delete(query_etiqueta)
         db.commit()
         return {"status": "ok", "message": "Etiqueta eliminada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 # N:M con Oferta
 
@@ -86,7 +86,7 @@ def delete_etiqueta(id_etiqueta: int, db: Session = Depends(get_bd)):
 def get_ofertas_etiqueta(id_etiqueta: int, db: Session = Depends(get_bd)):
     etiqueta = db.get(EtiquetaModel, id_etiqueta)
     if etiqueta is None: 
-            return {"status": "error", "message": "Etiqueta no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Etiqueta no encontrada"})
 
     return {"status": "ok", "data": etiqueta.ofertas}
 
@@ -95,7 +95,7 @@ def post_oferta_etiqueta(id_etiqueta: int, id_oferta: int, db: Session = Depends
     etiqueta = db.get(EtiquetaModel, id_etiqueta)
     offer = db.get(OfertaModel, id_oferta)
     if etiqueta is None or offer is None: 
-            return {"status": "error", "message": "Oferta o etiqueta no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta o etiqueta no encontrada"})
     
     offer.etiquetas.append(etiqueta)
     db.commit()
@@ -108,10 +108,10 @@ def delete_oferta_etiqueta(id_etiqueta: int, id_oferta: int, db: Session = Depen
     offer = db.get(OfertaModel, id_oferta)
 
     if etiqueta is None or offer is None: 
-            return {"status": "error", "message": "Oferta o etiqueta no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta o etiqueta no encontrada"})
 
     if offer not in etiqueta.ofertas:
-        return {"status": "error", "message": "Oferta no aplicada a etiqueta"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no aplicada a etiqueta"})
 
     etiqueta.ofertas.remove(offer)
     db.commit()

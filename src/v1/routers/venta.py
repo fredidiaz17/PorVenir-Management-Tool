@@ -58,7 +58,7 @@ def get_venta(id_venta: int, db: Session = Depends(get_bd)):
     stmt = select(VentaModel).where(VentaModel.id_venta == id_venta).options(selectinload(VentaModel.detalle_venta))
     result = db.execute(stmt).scalar_one_or_none()
     if result is None: 
-        return {"status": "error", "message": "Venta no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Venta no encontrada"})
     return {"status": "ok", "data": result} 
 
 # Crea una venta con sus detalles. Debe restar stock existente
@@ -93,7 +93,7 @@ def create_venta(venta: Venta, db: Session = Depends(get_bd)):
         
         return {"status": "ok", "message": "Venta creada exitosamente"}
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 # Una venta no se puede actualizar
 # Pero si se puede anular (ver regla ER-055)
@@ -105,7 +105,7 @@ def anular_venta(id_venta: int, db: Session = Depends(get_bd)):
         query_venta = db.execute(stmt).scalar_one_or_none()
         
         if not query_venta:
-            return {"status": "error", "message": "Venta no encontrada"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Venta no encontrada"}) 
         
         # Regresar stock
         updated = return_stock(query_venta.detalle_venta, db)
@@ -118,7 +118,7 @@ def anular_venta(id_venta: int, db: Session = Depends(get_bd)):
         db.commit() 
         return {"status": "ok", "message": "Venta anulada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
 
 # On cascade eliminará los detalles de la venta
 @router.delete("/{id_venta}")
@@ -126,9 +126,9 @@ def delete_venta(id_venta: int, db: Session = Depends(get_bd)):
     try:
         query_venta = db.get(VentaModel, id_venta)
         if not query_venta:
-            return {"status": "error", "message": "Venta no encontrada"} 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Venta no encontrada"}) 
         db.delete(query_venta)
         db.commit()
         return {"status": "ok", "message": "Venta eliminada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 

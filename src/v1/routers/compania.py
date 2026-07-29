@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends # Depends es para el manejo de dependencias. Reutilizar codigo mas limpio.
+
+from fastapi import APIRouter, Depends, HTTPException # Depends es para el manejo de dependencias. Reutilizar codigo mas limpio.
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -29,7 +30,7 @@ def get_compania(compania_id: int, db: Session = Depends(get_bd)):
     query_compania = db.get(CompaniaModel, compania_id) # db.get solo sirve si se sabe la PK. 
 
     if not query_compania: # Si no se encuentra la compañia. 
-        return {"status": "error", "message": "Compañia no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Compañia no encontrada"})
     # if result is None:
         # raise HTTPException(status_code=404, detail="Compania no encontrada") 
     return {"status": "ok", "data": query_compania}# Se devuelve el resultado.
@@ -44,7 +45,7 @@ def create_compania(compania:Compania, db: Session = Depends(get_bd)):
         db.refresh(new_company) # Se actualiza la instancia con los datos de la base de datos (como el id).
 
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Compañia creada exitosamente"}
     
@@ -54,14 +55,14 @@ def update_compania(compania_id: int, compania:Compania, db: Session = Depends(g
     try:
         query_compania = db.get(CompaniaModel, compania_id) # Se busca la compañia por PK.
         if not query_compania: # Si no se encuentra la compañia. 
-            return {"status": "error", "message": "Compañia no encontrada"}
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Compañia no encontrada"})
             
         query_compania.nombre = compania.nombre # Se actualiza el nombre de la compañia.
 
         db.commit() # Se confirma la transacción.
          
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Compañia actualizada exitosamente"}
 
@@ -70,13 +71,13 @@ def delete_compania(compania_id: int, db: Session = Depends(get_bd)):
     try:
         query_compania = db.get(CompaniaModel, compania_id) # Se ejecuta la consulta y se devuelve el primer resultado.
         if not query_compania: # Si no se encuentra la compañia. 
-            return {"status": "error", "message": "Compañia no encontrada"}
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Compañia no encontrada"})
 
         db.delete(query_compania) # Se elimina la instancia.
         db.commit() # Se confirma la transacción.    
          
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Compañia eliminada exitosamente"}    
 
@@ -87,7 +88,7 @@ def delete_compania(compania_id: int, db: Session = Depends(get_bd)):
 def get_ofertas_compania(compania_id: int, db: Session = Depends(get_bd)):
     compania = db.get(CompaniaModel, compania_id)
     if compania is None: 
-            return {"status": "error", "message": "Compañia no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Compañia no encontrada"})
 
     return {"status": "ok", "data": compania.ofertas}
 
@@ -97,7 +98,7 @@ def post_oferta_compania(compania_id: int, id_oferta: int, db: Session = Depends
     compania = db.get(CompaniaModel, compania_id)
     offer = db.get(OfertaModel, id_oferta)
     if compania is None or offer is None: 
-            return {"status": "error", "message": "Oferta o compañia no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta o compañia no encontrada"})
     
     offer.companias.append(compania)
     db.commit()
@@ -110,10 +111,10 @@ def delete_oferta_compania(compania_id: int, id_oferta: int, db: Session = Depen
     offer = db.get(OfertaModel, id_oferta)
 
     if compania is None or offer is None: 
-            return {"status": "error", "message": "Oferta o compañia no encontrada"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta o compañia no encontrada"})
 
     if offer not in compania.ofertas:
-        return {"status": "error", "message": "Oferta no aplicada a compañia"}
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no aplicada a compañia"})
 
     compania.ofertas.remove(offer)
     db.commit()

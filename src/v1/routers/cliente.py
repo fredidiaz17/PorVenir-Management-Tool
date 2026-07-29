@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends
+
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
@@ -22,7 +23,7 @@ def get_clientes(db: Session = Depends(get_bd)):
 def get_cliente(cliente_id: int, db: Session = Depends(get_bd)):
     query_cliente = db.get(ClienteModel, cliente_id)
     if query_cliente is None:
-        return {"status": "error", "message": "Cliente no encontrado"} 
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Cliente no encontrado"}) 
     return {"status": "ok", "data": query_cliente}
 
 @router.post("/") 
@@ -32,7 +33,7 @@ def create_cliente(cliente: Cliente, db: Session = Depends(get_bd)):
         db.add(new_cliente)
         db.commit()
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Cliente creado exitosamente"}
     
@@ -42,14 +43,14 @@ def update_cliente(cliente_id: int, cliente: Cliente, db: Session = Depends(get_
     try:
         query_cliente = db.get(ClienteModel, cliente_id)
         if not query_cliente:
-            return {"status": "error", "message": "Cliente no encontrado"}
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Cliente no encontrado"})
         
         query_cliente.nombre = cliente.nombre
         query_cliente.telefono = cliente.telefono
         
         db.commit()
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Cliente actualizado exitosamente"}
 
@@ -58,7 +59,7 @@ def update_cliente_parcial(cliente_id: int, cliente: ClientePatch, db: Session =
     try:
         query_cliente = db.get(ClienteModel, cliente_id) 
         if not query_cliente: 
-            return {"status": "error", "message": "Cliente no encontrado"}
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Cliente no encontrado"})
         
         for key, value in cliente.model_dump().items():
             if value is not None:
@@ -66,7 +67,7 @@ def update_cliente_parcial(cliente_id: int, cliente: ClientePatch, db: Session =
         
         db.commit()
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
     
     return {"status": "ok", "message": "Cliente actualizado exitosamente"}
 
@@ -75,11 +76,11 @@ def delete_cliente(cliente_id: int, db: Session = Depends(get_bd)):
     try:
         query_cliente = db.get(ClienteModel, cliente_id)
         if not query_cliente: 
-            return {"status": "error", "message": "Cliente no encontrado"}
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Cliente no encontrado"})
         db.delete(query_cliente)
         db.commit()
     except Exception as e:
-        return {"status": "error", "message": str(e), "origin": e.orig}
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
 
     return {"status": "ok", "message": "Cliente eliminado exitosamente"}
 
