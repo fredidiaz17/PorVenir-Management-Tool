@@ -1,6 +1,7 @@
 # Router unificador de sub Routers 
 # El único router que interactúa directamente con el servidor (main.py)
 
+from src.models import deuda
 from fastapi import APIRouter
 from .v1.routers.compania import router as compania_router
 from .v1.routers.marca import router as marca_router
@@ -10,11 +11,9 @@ from .v1.routers.oferta import router as oferta_router
 from .v1.routers.producto_etiqueta import router as producto_etiqueta_router
 from .v1.routers.preventista import router as preventista_router
 from .v1.routers.pedido import router as pedido_router
-from .v1.routers.detalle_pedido import router as detalle_pedido_router
 from .v1.routers.cliente import router as cliente_router
 from .v1.routers.venta import router as venta_router
-from .v1.routers.detalle_venta import router as detalle_venta_router
-
+from .v1.routers.deuda import router as deuda_router
 
 router = APIRouter()
 
@@ -56,11 +55,6 @@ router.include_router(
     tags=["Pedidos"]
 )
 router.include_router(
-    detalle_pedido_router, 
-    prefix="/detalle_pedido", 
-    tags=["Detalle Pedidos"]
-)
-router.include_router(
     cliente_router, 
     prefix="/cliente", 
     tags=["Clientes"]
@@ -71,7 +65,7 @@ router.include_router(
     tags=["Ventas"]
 )
 router.include_router(
-    detalle_venta_router, 
-    prefix="/detalle_venta", 
-    tags=["Detalle Ventas"]
+    deuda_router, 
+    prefix="/deuda", 
+    tags=["Deudas"]
 )

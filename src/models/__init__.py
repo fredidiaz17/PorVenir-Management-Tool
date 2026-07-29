@@ -11,7 +11,7 @@ from .detalle_pedido import DetallePedidoModel
 from .cliente import ClienteModel
 from .venta import VentaModel
 from .detalle_venta import DetalleVentaModel
-
+from .deuda import DeudaModel
 # Opcional, pero permite controlar que expongo al exterior
 __all__ = [
     "Base",
@@ -27,4 +27,5 @@ __all__ = [
     "ClienteModel",
     "VentaModel",
     "DetalleVentaModel",
+    "DeudaModel"
 ]
