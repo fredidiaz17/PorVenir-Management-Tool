@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
 from src.v1.schemas.enums import MedioPago
-
+from src.v1.schemas.detalle_venta import DetalleVenta
 
 class BaseVenta(BaseModel):
     fecha: date 
@@ -10,7 +10,7 @@ class BaseVenta(BaseModel):
     id_cliente: int 
 
 class Venta(BaseVenta):
-    pass
+    detalles_venta: list[DetalleVenta]
 
 class VentaPatch(BaseModel):
     fecha: date | None = None

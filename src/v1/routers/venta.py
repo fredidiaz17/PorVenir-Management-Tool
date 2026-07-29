@@ -1,70 +1,126 @@
+
+from fastapi.exceptions import HTTPException
 from fastapi import APIRouter, Depends
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 from src.database.db_conn import get_bd
+
 from src.v1.schemas.venta import Venta, VentaPatch
+
 from src.models.venta import VentaModel
+from src.models import DetalleVentaModel
+from src.models.producto import ProductoModel
 
 router = APIRouter()
 
+def update_stock(detalles: list[dict],db: Session): 
+    
+    for detalle in detalles: 
+        id_producto = detalle.get("id_producto", None)
+        cantidad = detalle.get("cantidad", None)
+        
+        query_producto = db.get(ProductoModel, id_producto)
+
+        # No se puede hacer la venta si el producto no existe o si el stock es menor a la cantidad pedida
+        if not query_producto or query_producto.cantidad_stock < cantidad:
+            return False
+
+        query_producto.cantidad_stock -= cantidad
+    
+    db.flush()
+    return True
+
+def return_stock(detalles: list[dict],db: Session):
+    for detalle in detalles:
+        id_producto = detalle.get("id_producto", None)
+        cantidad = detalle.get("cantidad", None)
+        
+        query_producto = db.get(ProductoModel, id_producto)
+
+        # Puede que el producto se haya eliminado, simplemente se elimina el detalle
+        if query_producto: 
+            # Se devuelve el stock del producto
+            query_producto.cantidad_stock += cantidad
+
+    db.flush()
+    return True
+
+# Retorna todas las ventas. Una "vista previa" de ellas
 @router.get("/")
 def get_ventas(db: Session = Depends(get_bd)):
     stmt = select(VentaModel)
     result = db.execute(stmt).scalars().all()
     return {"status": "ok", "data": result} 
 
+# Retorna una venta en concreto + sus detalles
 @router.get("/{id_venta}")
 def get_venta(id_venta: int, db: Session = Depends(get_bd)):
-    stmt = select(VentaModel).where(VentaModel.id_venta == id_venta)
+    stmt = select(VentaModel).where(VentaModel.id_venta == id_venta).options(selectinload(VentaModel.detalle_venta))
     result = db.execute(stmt).scalar_one_or_none()
     if result is None: 
         return {"status": "error", "message": "Venta no encontrada"}
     return {"status": "ok", "data": result} 
 
+# Crea una venta con sus detalles. Debe restar stock existente
 @router.post("/")
 def create_venta(venta: Venta, db: Session = Depends(get_bd)):
     try:
-        new_venta = VentaModel(**venta.model_dump())
+        # Se crea la venta, se crean sus detalles y se descuenta stock de los productos.
+        venta_dict = venta.model_dump()
+        detalles_venta = venta_dict.pop("detalles_venta", None)
+
+        if detalles_venta is None: 
+            raise HTTPException(status_code= 400, detail={"status": "error", "message": "La venta no puede estar vacia"})
+
+        new_venta = VentaModel(**venta_dict)
+
         db.add(new_venta)
+        db.flush()
+        
+        for detalle in detalles_venta:
+            detalle["id_venta"] = new_venta.id_venta
+            new_detalle = DetalleVentaModel(**detalle)
+            db.add(new_detalle)
+            db.flush()
+        
+        updated = update_stock(detalles_venta, db)
+        if not updated: 
+            raise HTTPException(status_code=400, detail={"status": "error", "message": "Ha ocurrido un error durante la actualización del stock"})
+        
         db.commit()
         db.refresh(new_venta)
+
+        
         return {"status": "ok", "message": "Venta creada exitosamente"}
     except Exception as e:
         return {"status": "error", "message": str(e)} 
 
-@router.put("/{id_venta}")
-def update_venta(id_venta: int, venta: Venta, db: Session = Depends(get_bd)):
+# Una venta no se puede actualizar
+# Pero si se puede anular (ver regla ER-055)
+@router.post("/{id_venta}/anular")
+def anular_venta(id_venta: int, db: Session = Depends(get_bd)):
     try:
-        query_venta = db.get(VentaModel, id_venta)
+        
+        stmt = select(VentaModel).where(VentaModel.id_venta == id_venta).options(selectinload(VentaModel.detalle_venta))
+        query_venta = db.execute(stmt).scalar_one_or_none()
+        
         if not query_venta:
             return {"status": "error", "message": "Venta no encontrada"} 
         
-        for key, value in venta.model_dump().items():
-            setattr(query_venta, key, value)
-
-        db.commit()
-        db.refresh(query_venta)
-        return {"status": "ok", "message": "Venta actualizada exitosamente"} 
-    except Exception as e:
-        return {"status": "error", "message": str(e)} 
-
-@router.patch("/{id_venta}")
-def update_venta_parcial(id_venta: int, venta: VentaPatch, db: Session = Depends(get_bd)):
-    try:
-        query_venta = db.get(VentaModel, id_venta)
-        if not query_venta:
-            return {"status": "error", "message": "Venta no encontrada"} 
+        # Regresar stock
+        updated = return_stock(query_venta.detalle_venta, db)
+        if not updated: 
+            raise HTTPException(status_code=400, detail={"status": "error", "message": "Ha ocurrido un error durante la anulación de la venta"})
         
-        for key, value in venta.model_dump().items():
-            if value is not None:
-                setattr(query_venta, key, value)
-
-        db.commit()
-        db.refresh(query_venta)
-        return {"status": "ok", "message": "Venta actualizada exitosamente"} 
+        # Eliminar venta
+        # No es necesario eliminar detalle por detalle, el on cascade se hará cargo.
+        db.delete(query_venta)
+        db.commit() 
+        return {"status": "ok", "message": "Venta anulada exitosamente"} 
     except Exception as e:
         return {"status": "error", "message": str(e)} 
 
+# On cascade eliminará los detalles de la venta
 @router.delete("/{id_venta}")
 def delete_venta(id_venta: int, db: Session = Depends(get_bd)):
     try:
