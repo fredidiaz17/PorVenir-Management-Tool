@@ -1,8 +1,8 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 from src.database.db_conn import get_bd
-from src.v1.schemas.deuda import Deuda, DeudaPatch
+from src.v1.schemas.deuda import DeudaAbono
 from src.models.deuda import DeudaModel
 
 router = APIRouter()
@@ -18,52 +18,32 @@ def get_deuda(id_deuda: int, db: Session = Depends(get_bd)):
     stmt = select(DeudaModel).where(DeudaModel.id_deuda == id_deuda)
     result = db.execute(stmt).scalar_one_or_none()
     if result is None: 
-        return {"status": "error", "message": "Deuda no encontrada"}
+        raise HTTPException(status_code=404, detail= {"status": "error", "message": "Deuda no encontrada"})
     return {"status": "ok", "data": result} 
+# No hay post de creación de deuda dado a que una deuda se debe crear en la venta. Ver regla ER-058
 
-@router.post("/")
-def create_deuda(deuda: Deuda, db: Session = Depends(get_bd)):
-    try:
-        new_deuda = DeudaModel(**deuda.model_dump())
-        db.add(new_deuda)
-        db.commit()
-        db.refresh(new_deuda)
-        return {"status": "ok", "message": "Deuda creada exitosamente"}
-    except Exception as e:
-        return {"status": "error", "message": str(e)} 
+# PERO, si hay post para ABONAR un monto a la deuda.
 
-@router.put("/{id_deuda}")
-def update_deuda(id_deuda: int, deuda: Deuda, db: Session = Depends(get_bd)):
-    try:
-        query_deuda = db.get(DeudaModel, id_deuda)
-        if not query_deuda:
-            return {"status": "error", "message": "Deuda no encontrada"} 
-        
-        for key, value in deuda.model_dump().items():
-            setattr(query_deuda, key, value)
+@router.post("/{id_deuda}")
+def abono_deuda(id_deuda: int, abono: DeudaAbono, db: Session = Depends(get_bd)):
+    query_deuda = db.get(DeudaModel, id_deuda)
+    if not query_deuda:
+        raise HTTPException(status_code=404, detail= {"status": "error", "message": "Deuda no encontrada"})
 
-        db.commit()
-        db.refresh(query_deuda)
-        return {"status": "ok", "message": "Deuda actualizada exitosamente"} 
-    except Exception as e:
-        return {"status": "error", "message": str(e)} 
+    abono = abono.saldo_pendiente
+    if abono <= 0:
+        raise HTTPException(status_code=400, detail= {"status": "error", "message": "Monto de abono invalido"})
 
-@router.patch("/{id_deuda}")
-def update_deuda_parcial(id_deuda: int, deuda: DeudaPatch, db: Session = Depends(get_bd)):
-    try:
-        query_deuda = db.get(DeudaModel, id_deuda)
-        if not query_deuda:
-            return {"status": "error", "message": "Deuda no encontrada"} 
-        
-        for key, value in deuda.model_dump().items():
-            if value is not None:
-                setattr(query_deuda, key, value)
+    query_deuda.saldo_pendiente -= abono.saldo_pendiente
+    
+    if query_deuda.saldo_pendiente == 0:
+        query_deuda.estado = False
+    
 
-        db.commit()
-        db.refresh(query_deuda)
-        return {"status": "ok", "message": "Deuda actualizada exitosamente"} 
-    except Exception as e:
-        return {"status": "error", "message": str(e)} 
+    db.commit()
+    return {"status": "ok", "data": "Monto abonado exitosamente"}
+
+# No hay put ni patch, el usuario solo abona un monto, no lo edita directamente.
 
 @router.delete("/{id_deuda}")
 def delete_deuda(id_deuda: int, db: Session = Depends(get_bd)):

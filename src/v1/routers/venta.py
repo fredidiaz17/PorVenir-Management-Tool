@@ -6,10 +6,12 @@ from sqlalchemy import select
 from src.database.db_conn import get_bd
 
 from src.v1.schemas.venta import Venta, VentaPatch
+from src.v1.schemas.enums import MedioPago
 
 from src.models.venta import VentaModel
 from src.models import DetalleVentaModel
 from src.models.producto import ProductoModel
+from src.models.deuda import DeudaModel
 
 router = APIRouter()
 
@@ -62,6 +64,7 @@ def get_venta(id_venta: int, db: Session = Depends(get_bd)):
     return {"status": "ok", "data": result} 
 
 # Crea una venta con sus detalles. Debe restar stock existente
+# Si es fiado, debe crear una deuda. Ver regla ER-058
 @router.post("/")
 def create_venta(venta: Venta, db: Session = Depends(get_bd)):
     try:
@@ -87,6 +90,24 @@ def create_venta(venta: Venta, db: Session = Depends(get_bd)):
         if not updated: 
             raise HTTPException(status_code=400, detail={"status": "error", "message": "Ha ocurrido un error durante la actualización del stock"})
         
+        # Genera deuda?
+        if new_venta.medio_pago == MedioPago.FIADO:
+            # ¿Ya existe?
+            stmt = select(DeudaModel).where(DeudaModel.id_cliente == new_venta.id_cliente)
+            deuda = db.execute(stmt).scalar_one_or_none()
+
+            if deuda:
+                deuda.saldo_pendiente += new_venta.total
+            
+            else:
+                deuda = DeudaModel(
+                    id_cliente=new_venta.id_cliente,
+                    saldo_pendiente=new_venta.total,
+                    estado=True
+                )
+            db.add(deuda)
+            db.flush()
+
         db.commit()
         db.refresh(new_venta)
 
