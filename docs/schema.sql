@@ -3,14 +3,14 @@ USE tienda;
 
 CREATE TABLE `compania` (
   `id_compania` integer AUTO_INCREMENT PRIMARY KEY,
-  `nombre` varchar(100)
+  `nombre` varchar(100) UNIQUE NOT NULL
 );
 
 CREATE TABLE `marca` (
   `id_marca` integer AUTO_INCREMENT PRIMARY KEY,
   `nombre` varchar(100),
   `descripcion` varchar(255),
-  `id_compania` integer
+  `id_compania` integer 
 );
 
 CREATE TABLE `producto` (
