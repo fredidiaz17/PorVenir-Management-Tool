@@ -9,8 +9,8 @@ class BaseDetallePedido(BaseModel):
     total_linea: float
 
 class DetallePedido(BaseDetallePedido):
-    id_pedido: int
-    id_producto: int
+    id_pedido: int | None # ¿Es necesario? Pedido maneja los detalles, el ID se obtiene enseguida.
+    id_producto: int | None
 
 class DetallePedidoPatch(BaseModel):
     cantidad: float | None = None

@@ -4,7 +4,7 @@ from datetime import date
 from sqlalchemy import ForeignKey, Float, Date, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.db_conn import Base
-from src.schemas.enums import EstadoPedido
+from src.v1.schemas.enums import EstadoPedido
 
 if TYPE_CHECKING:
     from src.models.preventista import PreventistaModel
