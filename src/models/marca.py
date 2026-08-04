@@ -33,8 +33,7 @@ class MarcaModel(Base):
     ofertas: Mapped[list[OfertaModel]] = relationship(
         "OfertaModel",
         secondary="oferta_marca",
-        back_populates="marcas",
-        cascade="all, delete-orphan"
+        back_populates="marcas"
     )
 
     def __repr__(self):

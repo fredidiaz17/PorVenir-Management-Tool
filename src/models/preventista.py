@@ -14,7 +14,7 @@ class PreventistaModel(Base):
     id_preventista: Mapped[int] = mapped_column(primary_key=True)
     nombre: Mapped[str] = mapped_column(String(100))
     telefono: Mapped[str | None] = mapped_column(String(20), nullable=True)
-    id_compania: Mapped[int] = mapped_column(ForeignKey("compania.id_compania"), on_delete= "CASCADE")
+    id_compania: Mapped[int] = mapped_column(ForeignKey("compania.id_compania", ondelete= "CASCADE" ))
 
     compania: Mapped[CompaniaModel] = relationship(
         "CompaniaModel",

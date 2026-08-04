@@ -58,29 +58,28 @@ class OfertaModel(Base):
     estado: Mapped[EstadoOferta] = mapped_column(SQLEnum(EstadoOferta), default=EstadoOferta.ACTIVA)
 
     # Relaciones
-    
+    # NOTA: Se eliminó el cascade "all, delete-orphan" de las relaciones de oferta con sus entidades relacionadas, 
+    # ya que se eliminaría la oferta al eliminar una de sus entidades relacionadas.
+    # NO es recomendado usarlo en relaciones N:M
     productos: Mapped[list["ProductoModel"]] = relationship(
         secondary="oferta_producto",
         back_populates="ofertas",
-        cascade="all, delete-orphan"
     )
 
     etiquetas: Mapped[list["EtiquetaModel"]] = relationship(
         secondary="oferta_etiqueta",
         back_populates="ofertas",
-        cascade="all, delete-orphan"
+        
     )
 
     marcas: Mapped[list["MarcaModel"]] = relationship(
         secondary="oferta_marca",
         back_populates="ofertas",
-        cascade="all, delete-orphan"
     )
 
     companias: Mapped[list["CompaniaModel"]] = relationship(
         secondary="oferta_compania",
         back_populates="ofertas",
-        cascade="all, delete-orphan"
     )
 
     def __repr__(self) -> str:

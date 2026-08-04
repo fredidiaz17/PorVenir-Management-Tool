@@ -4,7 +4,6 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Enum as SQLEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from src.database.db_conn import Base
-from src.schemas.enums import EstadoRegistro
 
 if TYPE_CHECKING:
     from src.models.producto import ProductoModel
@@ -15,7 +14,7 @@ class ProductoEtiquetaModel(Base):
     
     id_producto: Mapped[int] = mapped_column(ForeignKey("producto.id_producto", ondelete="CASCADE"), primary_key=True)
     id_etiqueta: Mapped[int] = mapped_column(ForeignKey("etiqueta.id_etiqueta", ondelete="CASCADE"), primary_key=True)
-    estado: Mapped[EstadoRegistro] = mapped_column(SQLEnum(EstadoRegistro), default=EstadoRegistro.ACTIVO)
+    estado: Mapped[str] = mapped_column(default="Activo")
 
     producto: Mapped[ProductoModel] = relationship(
         "ProductoModel",

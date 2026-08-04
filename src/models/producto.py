@@ -41,22 +41,19 @@ class ProductoModel(Base):
 
     detalle_venta: Mapped[list[DetalleVentaModel]] = relationship(
         "DetalleVentaModel",
-        back_populates="producto",
-        cascade="all, delete-orphan"
+        back_populates="producto"
     )
 
     detalles_pedido: Mapped[list[DetallePedidoModel]] = relationship(
         "DetallePedidoModel",
-        back_populates="producto",
-        cascade="all, delete-orphan"
+        back_populates="producto"
     )
     
     # Relación con oferta
     ofertas : Mapped[list[OfertaModel]] = relationship(
         "OfertaModel",
         secondary="oferta_producto",
-        back_populates="productos",
-        cascade="all, delete-orphan"
+        back_populates="productos"
     )
 
     def __repr__(self) -> str:

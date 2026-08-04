@@ -27,8 +27,7 @@ class EtiquetaModel(Base):
     ofertas: Mapped[list[OfertaModel]] = relationship(
         "OfertaModel",
         secondary="oferta_etiqueta",
-        back_populates="etiquetas",
-        cascade="all, delete-orphan"
+        back_populates="etiquetas"
     )
 
     def __repr__(self) -> str:

@@ -12,7 +12,7 @@ class DetalleVentaModel(Base):
     __tablename__ = "detalle_venta"
     
     id_venta: Mapped[int] = mapped_column(ForeignKey("venta.id_venta", ondelete="CASCADE"), primary_key=True)
-    id_producto: Mapped[int] = mapped_column(ForeignKey("producto.id_producto", ondelete="CASCADE"), primary_key=True)
+    id_producto: Mapped[int] = mapped_column(ForeignKey("producto.id_producto" ), primary_key=True)
     cantidad: Mapped[float] = mapped_column(Float)
     precio_venta: Mapped[float] = mapped_column(Float)
     descuento_manual: Mapped[float] = mapped_column(Float)
