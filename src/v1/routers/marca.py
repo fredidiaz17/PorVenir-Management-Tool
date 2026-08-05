@@ -35,7 +35,7 @@ def create_marca(marca: Marca, db: Session = Depends(get_bd)):
         db.commit()
         db.refresh(new_marca)
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
     
     return {"status": "ok", "message": "Marca creada exitosamente"}
     
@@ -54,7 +54,7 @@ def update_marca(marca_id: int, marca: Marca, db: Session = Depends(get_bd)):
         db.commit() # Se confirma la transacción.
         db.refresh(query_marca) # Se actualiza la instancia con los datos de la base de datos (como el id).
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
     
     return {"status": "ok", "message": "Compañia actualizada exitosamente"}
 
@@ -72,7 +72,7 @@ def update_marca_parcial(marca_id: int, marca: MarcaPatch, db: Session = Depends
         db.commit() 
         db.refresh(query_marca) 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
     
     return {"status": "ok", "message": "Compañia actualizada exitosamente"}
 
@@ -85,7 +85,7 @@ def delete_marca(marca_id: int, db: Session = Depends(get_bd)):
         db.delete(query_marca)
         db.commit()
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
     
     return {"status": "ok", "message": "Compañia eliminada exitosamente"}
 

@@ -45,7 +45,7 @@ def create_compania(compania:Compania, db: Session = Depends(get_bd)):
         db.refresh(new_company) # Se actualiza la instancia con los datos de la base de datos (como el id).
 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
     
     return {"status": "ok", "message": "Compañia creada exitosamente"}
     
@@ -62,7 +62,7 @@ def update_compania(compania_id: int, compania:Compania, db: Session = Depends(g
         db.commit() # Se confirma la transacción.
          
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
     
     return {"status": "ok", "message": "Compañia actualizada exitosamente"}
 
@@ -77,7 +77,7 @@ def delete_compania(compania_id: int, db: Session = Depends(get_bd)):
         db.commit() # Se confirma la transacción.    
          
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": e.orig})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
     
     return {"status": "ok", "message": "Compañia eliminada exitosamente"}    
 

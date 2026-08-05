@@ -30,7 +30,7 @@ def create_preventista(preventista: Preventista, db: Session = Depends(get_bd)):
         db.refresh(new_preventista)
         return {"status": "ok", "message": "Preventista creado exitosamente"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 @router.put("/{id_preventista}")
 def update_preventista(id_preventista: int, preventista: Preventista, db: Session = Depends(get_bd)):
@@ -46,7 +46,7 @@ def update_preventista(id_preventista: int, preventista: Preventista, db: Sessio
         db.refresh(query_preventista)
         return {"status": "ok", "message": "Preventista actualizado exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 @router.patch("/{id_preventista}")
 def update_preventista_parcial(id_preventista: int, preventista: PreventistaPatch, db: Session = Depends(get_bd)):
@@ -63,7 +63,7 @@ def update_preventista_parcial(id_preventista: int, preventista: PreventistaPatc
         db.refresh(query_preventista)
         return {"status": "ok", "message": "Preventista actualizado exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 @router.delete("/{id_preventista}")
 def delete_preventista(id_preventista: int, db: Session = Depends(get_bd)):
@@ -75,4 +75,4 @@ def delete_preventista(id_preventista: int, db: Session = Depends(get_bd)):
         db.commit()
         return {"status": "ok", "message": "Preventista eliminado exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 

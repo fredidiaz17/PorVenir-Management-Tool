@@ -33,7 +33,7 @@ def create_producto_etiqueta(producto_etiqueta: ProductoEtiqueta, db: Session = 
         db.refresh(new_relacion)
         return {"status": "ok", "message": "Relación creada exitosamente"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "origin", None)}) 
 
 @router.put("/{id_producto}/{id_etiqueta}")
 def update_producto_etiqueta(id_producto: int, id_etiqueta: int, producto_etiqueta: ProductoEtiqueta, db: Session = Depends(get_bd)):
@@ -52,7 +52,7 @@ def update_producto_etiqueta(id_producto: int, id_etiqueta: int, producto_etique
         db.refresh(query_relacion)
         return {"status": "ok", "message": "Relación actualizada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "origin", None)}) 
 
 @router.delete("/{id_producto}/{id_etiqueta}")
 def delete_producto_etiqueta(id_producto: int, id_etiqueta: int, db: Session = Depends(get_bd)):
@@ -68,4 +68,4 @@ def delete_producto_etiqueta(id_producto: int, id_etiqueta: int, db: Session = D
         db.commit()
         return {"status": "ok", "message": "Relación eliminada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "origin", None)}) 

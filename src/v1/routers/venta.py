@@ -114,7 +114,7 @@ def create_venta(venta: Venta, db: Session = Depends(get_bd)):
         
         return {"status": "ok", "message": "Venta creada exitosamente"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 # Una venta no se puede actualizar
 # Pero si se puede anular (ver regla ER-055)
@@ -139,7 +139,7 @@ def anular_venta(id_venta: int, db: Session = Depends(get_bd)):
         db.commit() 
         return {"status": "ok", "message": "Venta anulada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 # On cascade eliminará los detalles de la venta
 @router.delete("/{id_venta}")
@@ -152,4 +152,4 @@ def delete_venta(id_venta: int, db: Session = Depends(get_bd)):
         db.commit()
         return {"status": "ok", "message": "Venta eliminada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 

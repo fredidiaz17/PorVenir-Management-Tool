@@ -31,7 +31,7 @@ def create_etiqueta(etiqueta: Etiqueta, db: Session = Depends(get_bd)):
         db.refresh(new_etiqueta)
         return {"status": "ok", "message": "Etiqueta creada exitosamente"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
 
 @router.put("/{id_etiqueta}")
 def update_etiqueta(id_etiqueta: int, etiqueta: Etiqueta, db: Session = Depends(get_bd)):
@@ -48,7 +48,7 @@ def update_etiqueta(id_etiqueta: int, etiqueta: Etiqueta, db: Session = Depends(
         db.refresh(query_etiqueta)
         return {"status": "ok", "message": "Etiqueta actualizada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 @router.patch("/{id_etiqueta}")
 def update_etiqueta_parcial(id_etiqueta: int, etiqueta: EtiquetaPatch, db: Session = Depends(get_bd)):
@@ -65,7 +65,7 @@ def update_etiqueta_parcial(id_etiqueta: int, etiqueta: EtiquetaPatch, db: Sessi
         db.refresh(query_etiqueta)
         return {"status": "ok", "message": "Etiqueta actualizada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 @router.delete("/{id_etiqueta}")
 def delete_etiqueta(id_etiqueta: int, db: Session = Depends(get_bd)):
@@ -77,7 +77,7 @@ def delete_etiqueta(id_etiqueta: int, db: Session = Depends(get_bd)):
         db.commit()
         return {"status": "ok", "message": "Etiqueta eliminada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 # N:M con Oferta
 

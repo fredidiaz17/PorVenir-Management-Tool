@@ -141,7 +141,7 @@ def create_pedido(pedido: Pedido, db: Session = Depends(get_bd)):
         db.commit()
         return {"status": "ok", "message": "Pedido creado exitosamente"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 
 # --- UPDATE ---
@@ -167,7 +167,7 @@ def update_pedido(id_pedido: int, pedido: Pedido, db: Session = Depends(get_bd))
             for key, value in pedido_dict.items():
                 setattr(query_pedido, key, value)
         except Exception:
-            raise HTTPException(status_code=400, detail={"status": "error", "message": "Error al actualizar el pedido"}) 
+            raise HTTPException(status_code=400, detail={"status": "error", "message": "Error al actualizar el pedido", "origin": getattr(e, "orig", None)}) 
         
         
         # Si el estado cambia a "Recibido", se debe aumentar el stock
@@ -221,7 +221,7 @@ def update_pedido_parcial(id_pedido: int, pedido: PedidoPatch, db: Session = Dep
         db.refresh(query_pedido)
         return {"status": "ok", "message": "Pedido actualizado exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 # --- DELETE ---
 # Si no existe pedido, tampoco sus detalles. El On delete Cascade se encargara de esto.
@@ -235,4 +235,4 @@ def delete_pedido(id_pedido: int, db: Session = Depends(get_bd)):
         db.commit()
         return {"status": "ok", "message": "Pedido eliminado exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 

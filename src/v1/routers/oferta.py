@@ -31,7 +31,7 @@ def create_oferta(oferta: Oferta, db: Session = Depends(get_bd)):
         db.refresh(new_oferta)
         return {"status": "ok", "message": "Oferta creada exitosamente"}
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 @router.put("/{id_oferta}")
 def update_oferta(id_oferta: int, oferta: Oferta, db: Session = Depends(get_bd)):
@@ -47,7 +47,7 @@ def update_oferta(id_oferta: int, oferta: Oferta, db: Session = Depends(get_bd))
         db.refresh(query_oferta)
         return {"status": "ok", "message": "Oferta actualizada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 @router.patch("/{id_oferta}")
 def update_oferta_parcial(id_oferta: int, oferta: OfertaPatch, db: Session = Depends(get_bd)):
@@ -64,7 +64,7 @@ def update_oferta_parcial(id_oferta: int, oferta: OfertaPatch, db: Session = Dep
         db.refresh(query_oferta)
         return {"status": "ok", "message": "Oferta actualizada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
 @router.delete("/{id_oferta}")
 def delete_oferta(id_oferta: int, db: Session = Depends(get_bd)):
@@ -76,7 +76,7 @@ def delete_oferta(id_oferta: int, db: Session = Depends(get_bd)):
         db.commit()
         return {"status": "ok", "message": "Oferta eliminada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e)})
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
 
 # N:M de Ofertas con Productos, Marcas, Etiquetas y Companias
 

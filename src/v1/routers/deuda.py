@@ -50,9 +50,9 @@ def delete_deuda(id_deuda: int, db: Session = Depends(get_bd)):
     try:
         query_deuda = db.get(DeudaModel, id_deuda)
         if not query_deuda:
-            return {"status": "error", "message": "Deuda no encontrada"} 
+            raise HTTPException(status_code=404, detail= {"status": "error", "message": "Deuda no encontrada"}) 
         db.delete(query_deuda)
         db.commit()
         return {"status": "ok", "message": "Deuda eliminada exitosamente"} 
     except Exception as e:
-        return {"status": "error", "message": str(e)} 
+        raise HTTPException(status_code=400, detail= {"status": "error", "message": str(e), "origin": getattr(e, "orig", None)} ) 
