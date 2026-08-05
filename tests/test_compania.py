@@ -46,4 +46,4 @@ def test_delete_compania(client):
     assert data["status"] == "ok"
     
     get_response = client.get("/api/v1/compania/1")
-    assert get_response.json()["status"] == "error"
+    assert get_response.status_code == 404

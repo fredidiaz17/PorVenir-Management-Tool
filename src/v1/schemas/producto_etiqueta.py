@@ -1,8 +1,7 @@
 from pydantic import BaseModel
-from src.v1.schemas.enums import EstadoOferta
 
 class BaseProductoEtiqueta(BaseModel):
-    estado: EstadoOferta | None = EstadoOferta.ACTIVO
+    estado: str | None = "Inactivo"
 
 class ProductoEtiqueta(BaseProductoEtiqueta):
     id_producto: int
