@@ -324,6 +324,7 @@ Reglas que no están implementadas aún, pero se tienen previstas.
 
 * Bloquear ventas cuando el stock sea insuficiente.
 * Aplicar promociones acumulables.
+* Permitir al usuario eligir entre ofertas de diferente tipo
 
 ---
 
