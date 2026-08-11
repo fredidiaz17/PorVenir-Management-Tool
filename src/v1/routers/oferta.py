@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from sqlalchemy import select
 from src.database.db_conn import get_bd
 from src.v1.schemas.oferta import Oferta, OfertaPatch
-from src.models.oferta import OfertaModel
+from src.models import OfertaModel, ProductoModel, CompaniaModel, EtiquetaModel, MarcaModel
 
 router = APIRouter()
 
@@ -78,34 +78,145 @@ def delete_oferta(id_oferta: int, db: Session = Depends(get_bd)):
     except Exception as e:
         raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
 
-# N:M de Ofertas con Productos, Marcas, Etiquetas y Companias
 
-# GET
+# Vinculación y Desvinculación de Ofertas
 
-@router.get("/{id_oferta}/productos")
-def get_productos_ofertas(id_oferta: int, db: Session = Depends(get_bd)):
-    offer = db.get(OfertaModel, id_oferta)
-    if offer is None:
-        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
-    return {"status": "ok", "data": offer.productos}
+# Vinculaciones
 
-@router.get("/{id_oferta}/marcas")
-def get_marcas_ofertas(id_oferta: int, db: Session = Depends(get_bd)):
-    offer = db.get(OfertaModel, id_oferta)
-    if offer is None:
-        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
-    return {"status": "ok", "data": offer.marcas}
+@router.post("/vinculacion/Producto/{id_producto}/Oferta/{id_oferta}")
+def vincular_producto_oferta(id_oferta: int, id_producto: int, db: Session = Depends(get_bd)):
+    try: 
+        query_oferta = db.get(OfertaModel, id_oferta)
+        if not query_oferta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"}) 
+        query_producto = db.get(ProductoModel, id_producto)
+        if not query_producto:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Producto no encontrado"})
+        query_oferta.productos.append(query_producto) 
+        db.commit()
+        db.refresh(query_oferta)
+        return {"status": "ok", "message": "Producto vinculado exitosamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
-@router.get("/{id_oferta}/etiquetas")
-def get_etiquetas_ofertas(id_oferta: int, db: Session = Depends(get_bd)):
-    offer = db.get(OfertaModel, id_oferta)
-    if offer is None:
-        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
-    return {"status": "ok", "data": offer.etiquetas}
+@router.post("/vinculacion/Compania/{id_compania}/Oferta/{id_oferta}")
+def vincular_compania_oferta(id_oferta: int, id_compania: int, db: Session = Depends(get_bd)):
+    try: 
+        query_oferta = db.get(OfertaModel, id_oferta)
+        if not query_oferta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"}) 
+        query_compania = db.get(CompaniaModel, id_compania)
+        if not query_compania:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Compania no encontrada"})
+        
+        query_oferta.companias.append(query_compania) 
+        db.commit()
+        db.refresh(query_oferta)
+        return {"status": "ok", "message": "Compania vinculada exitosamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
 
-@router.get("/{id_oferta}/companias")
-def get_companias_ofertas(id_oferta: int, db: Session = Depends(get_bd)):
-    offer = db.get(OfertaModel, id_oferta)
-    if offer is None:
-        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
-    return {"status": "ok", "data": offer.companias}
+@router.post("/vinculacion/Etiqueta/{id_etiqueta}/Oferta/{id_oferta}")
+def vincular_etiqueta_oferta(id_oferta: int, id_etiqueta: int, db: Session = Depends(get_bd)):
+    try: 
+        query_oferta = db.get(OfertaModel, id_oferta)
+        if not query_oferta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"}) 
+        query_etiqueta = db.get(EtiquetaModel, id_etiqueta)
+        if not query_etiqueta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Etiqueta no encontrada"})
+        
+        query_oferta.etiquetas.append(query_etiqueta) 
+        db.commit()
+        db.refresh(query_oferta)
+        return {"status": "ok", "message": "Etiqueta vinculada exitosamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
+
+@router.post("/vinculacion/Marca/{id_marca}/Oferta/{id_oferta}")
+def vincular_marca_oferta(id_oferta: int, id_marca: int, db: Session = Depends(get_bd)):
+    try: 
+        query_oferta = db.get(OfertaModel, id_oferta)
+        if not query_oferta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"}) 
+        query_marca = db.get(MarcaModel, id_marca)
+        if not query_marca:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Marca no encontrada"})
+        
+        query_oferta.marcas.append(query_marca) 
+        db.commit()
+        db.refresh(query_oferta)
+        return {"status": "ok", "message": "Marca vinculada exitosamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
+
+
+# Desvinculaciones
+
+@router.delete("/desvinculacion/Producto/{id_producto}/Oferta/{id_oferta}")
+def desvincular_producto_oferta(id_oferta: int, id_producto: int, db: Session = Depends(get_bd)):
+    try: 
+        query_oferta = db.get(OfertaModel, id_oferta)
+        if not query_oferta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"}) 
+        query_producto = db.get(ProductoModel, id_producto)
+        if not query_producto:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Producto no encontrado"})
+
+        query_oferta.productos.remove(query_producto) 
+        db.commit()
+        db.refresh(query_oferta)
+        return {"status": "ok", "message": "Producto desvinculado exitosamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
+
+@router.delete("/desvinculacion/Compania/{id_compania}/Oferta/{id_oferta}")
+def desvincular_compania_oferta(id_oferta: int, id_compania: int, db: Session = Depends(get_bd)):
+    try: 
+        query_oferta = db.get(OfertaModel, id_oferta)
+        if not query_oferta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"}) 
+        query_compania = db.get(CompaniaModel, id_compania)
+        if not query_compania:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Compania no encontrada"})
+
+        query_oferta.companias.remove(query_compania) 
+        db.commit()
+        db.refresh(query_oferta)
+        return {"status": "ok", "message": "Compania desvinculada exitosamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
+
+@router.delete("/desvinculacion/Etiqueta/{id_etiqueta}/Oferta/{id_oferta}")
+def desvincular_etiqueta_oferta(id_oferta: int, id_etiqueta: int, db: Session = Depends(get_bd)):
+    try: 
+        query_oferta = db.get(OfertaModel, id_oferta)
+        if not query_oferta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"}) 
+        query_etiqueta = db.get(EtiquetaModel, id_etiqueta)
+        if not query_etiqueta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Etiqueta no encontrada"})
+
+        query_oferta.etiquetas.remove(query_etiqueta) 
+        db.commit()
+        db.refresh(query_oferta)
+        return {"status": "ok", "message": "Etiqueta desvinculada exitosamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
+
+@router.delete("/desvinculacion/Marca/{id_marca}/Oferta/{id_oferta}")
+def desvincular_marca_oferta(id_oferta: int, id_marca: int, db: Session = Depends(get_bd)):
+    try: 
+        query_oferta = db.get(OfertaModel, id_oferta)
+        if not query_oferta:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"}) 
+        query_marca = db.get(MarcaModel, id_marca)
+        if not query_marca:
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Marca no encontrada"})
+
+        query_oferta.marcas.remove(query_marca) 
+        db.commit()
+        db.refresh(query_oferta)
+        return {"status": "ok", "message": "Marca desvinculada exitosamente"} 
+    except Exception as e:
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
