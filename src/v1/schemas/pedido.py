@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from datetime import date
 from src.v1.schemas.enums import EstadoPedido
-from src.v1.schemas.detalle_pedido import BaseDetallePedido
+from src.v1.schemas.detalle_pedido import DetallePedidoCreate, DetallePedidoPatch
 
 class BasePedido(BaseModel):
     fecha_pedido: date 
@@ -12,7 +12,7 @@ class BasePedido(BaseModel):
     id_preventista: int
 
 class Pedido(BasePedido):
-    detalles_pedido: list[BaseDetallePedido] 
+    detalles_pedido: list[DetallePedidoCreate] 
 
 class PedidoPatch(BaseModel):
     fecha_pedido: date | None = None
@@ -21,4 +21,4 @@ class PedidoPatch(BaseModel):
     impuestos: float | None = None
     total: float | None = None
     id_preventista: int | None = None
-    detalles_pedido: list[BaseDetallePedido] | None = None
+    detalles_pedido: list[DetallePedidoPatch] | None = None

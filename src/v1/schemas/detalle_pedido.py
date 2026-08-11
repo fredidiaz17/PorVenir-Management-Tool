@@ -8,9 +8,8 @@ class BaseDetallePedido(BaseModel):
     iva_valor: float | None = 0.0
     total_linea: float
 
-class DetallePedido(BaseDetallePedido):
-    id_pedido: int | None # ¿Es necesario? Pedido maneja los detalles, el ID se obtiene enseguida.
-    id_producto: int | None
+class DetallePedidoCreate(BaseDetallePedido):
+    id_producto: int
 
 class DetallePedidoPatch(BaseModel):
     cantidad: float | None = None
@@ -19,3 +18,4 @@ class DetallePedidoPatch(BaseModel):
     iva_porcentaje: float | None = None
     iva_valor: float | None = None
     total_linea: float | None = None
+    id_producto: int | None = None

@@ -14,7 +14,7 @@ from src.models.producto import ProductoModel
 router = APIRouter()
 
 def update_stock(id_pedido: int, db: Session):
-    stmt = db.select(DetallePedidoModel).where(DetallePedidoModel.id_pedido == id_pedido)
+    stmt = select(DetallePedidoModel).where(DetallePedidoModel.id_pedido == id_pedido)
     query_detalle = db.execute(stmt).scalars().all()
 
     # Se iteran por cada detalle del pedido
@@ -35,8 +35,7 @@ def update_stock(id_pedido: int, db: Session):
 
 
 def update_details(id_pedido: int, detalles: list[dict], db: Session, put = True):
-
-    stmt = db.select(DetallePedidoModel).where(DetallePedidoModel.id_pedido == id_pedido)
+    stmt = select(DetallePedidoModel).where(DetallePedidoModel.id_pedido == id_pedido)
     detalles_existentes = db.execute(stmt).scalars().all()
 
     if not detalles_existentes:
