@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class DeudaAbono(BaseModel):
-    saldo_pendiente: float
+    monto_abonado: float
 
 
 # Pendientes por implementar

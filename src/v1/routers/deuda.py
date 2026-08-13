@@ -30,11 +30,11 @@ def abono_deuda(id_deuda: int, abono: DeudaAbono, db: Session = Depends(get_bd))
     if not query_deuda:
         raise HTTPException(status_code=404, detail= {"status": "error", "message": "Deuda no encontrada"})
 
-    abono = abono.saldo_pendiente
-    if abono <= 0:
+    monto_abonado = abono.monto_abonado
+    if monto_abonado <= 0:
         raise HTTPException(status_code=400, detail= {"status": "error", "message": "Monto de abono invalido"})
 
-    query_deuda.saldo_pendiente -= abono.saldo_pendiente
+    query_deuda.saldo_pendiente -= monto_abonado
     
     if query_deuda.saldo_pendiente == 0:
         query_deuda.estado = False
