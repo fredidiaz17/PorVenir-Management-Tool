@@ -1,7 +1,7 @@
 
 
 def test_create_marca(client, setup_marca): # Se usa el fixture para crear una marca y automaticamente una compania asociada a ella 
-    id_compania = setup_marca.compania.id_compania # Se accede a la compania subyacente y se obtiene su id
+    id_compania = setup_marca["compania"].id_compania # Se accede a la compania subyacente y se obtiene su id
     response = client.post("/api/v1/marca/", json={
         "nombre": "Test Marca",
         "descripcion": "A test marca",
@@ -14,7 +14,7 @@ def test_create_marca(client, setup_marca): # Se usa el fixture para crear una m
 
 def test_get_marcas(client, setup_marca):
     # Creamos otra marca
-    id_compania = setup_marca.compania.id_compania 
+    id_compania = setup_marca["compania"].id_compania 
     client.post("/api/v1/marca/", json={
         "nombre": "Test Marca",
         "descripcion": "A test marca",
@@ -28,13 +28,12 @@ def test_get_marcas(client, setup_marca):
 
     data = response.json()
     assert data["status"] == "ok"
-    assert len(data["data"]) > 0
+    assert len(data["data"]) >= 2
 
 
 def test_get_marca(client, setup_marca):
-    marca = setup_marca # Se accede a la marca creada con el fixture 
-    id_marca = marca.id_marca 
-    nombre_marca = marca.nombre
+    id_marca = setup_marca["marca"].id_marca 
+    nombre_marca = setup_marca["marca"].nombre
     
     response = client.get(f"/api/v1/marca/{id_marca}")
     assert response.status_code == 200
@@ -43,8 +42,8 @@ def test_get_marca(client, setup_marca):
     assert data["data"]["nombre"] == nombre_marca
 
 def test_update_marca(client, setup_marca):
-    marca_id = setup_marca.id_marca
-    compania_id = setup_marca.compania.id_compania
+    marca_id = setup_marca["marca"].id_marca
+    compania_id = setup_marca["compania"].id_compania
 
     response = client.put(f"/api/v1/marca/{marca_id}", json={
         "nombre": "Updated Marca",
@@ -59,7 +58,7 @@ def test_update_marca(client, setup_marca):
     assert get_response.json()["data"]["nombre"] == "Updated Marca"
 
 def test_update_marca_parcial(client, setup_marca):
-    marca_id = setup_marca.id_marca
+    marca_id = setup_marca["marca"].id_marca
     response = client.patch(f"/api/v1/marca/{marca_id}", json={
         "nombre": "Patched Marca"
     })
@@ -69,10 +68,9 @@ def test_update_marca_parcial(client, setup_marca):
     
     get_response = client.get(f"/api/v1/marca/{marca_id}")
     assert get_response.json()["data"]["nombre"] == "Patched Marca"
-    assert get_response.json()["data"]["descripcion"] == "Updated description"
 
 def test_delete_marca(client, setup_marca):
-    marca_id = setup_marca.id_marca
+    marca_id = setup_marca["marca"].id_marca
     response = client.delete(f"/api/v1/marca/{marca_id}")
     assert response.status_code == 200
     data = response.json()

@@ -1,8 +1,8 @@
 from sqlalchemy.orm import scoped_session, sessionmaker
-from src.v1.schemas.enums import UnidadMedida
-import factory
+from src.v1.schemas.enums import UnidadMedida, TipoOferta, EstadoOferta, EstadoPedido
 from factory import alchemy, SubFactory, LazyFunction
 from faker import Faker
+from datetime import datetime, date
 from src.models import CompaniaModel, MarcaModel, ProductoModel, EtiquetaModel, ProductoEtiquetaModel, OfertaModel, PreventistaModel, PedidoModel, DetallePedidoModel, ClienteModel, VentaModel, DetalleVentaModel, DeudaModel, Base
 
 # factory-boy es una libreria que permite crear instancias de modelos de forma automatizada
@@ -70,3 +70,42 @@ class ProductoEtiquetaFactory(BaseFactory):
     producto = SubFactory(ProductoFactory)
     etiqueta = SubFactory(EtiquetaFactory)
     estado = LazyFunction(lambda: fake.random_element(elements=["Activo", "Inactivo"]))
+
+class OfertaFactory(BaseFactory):
+    class Meta:
+        model = OfertaModel
+    
+    nombre = LazyFunction(lambda: fake.text(max_nb_chars=100))
+    descripcion = LazyFunction(lambda: fake.text(max_nb_chars=255))
+    tipo_oferta = TipoOferta.DESCUENTO
+    valor_descuento = 10.0
+    cantidad_minima = 1
+    producto_regalo = 0
+    fecha_inicio = LazyFunction(datetime.now)
+    fecha_fin = LazyFunction(datetime.now)
+    estado = EstadoOferta.ACTIVA
+
+class PedidoFactory(BaseFactory):
+    class Meta:
+        model = PedidoModel
+    
+    fecha_pedido = LazyFunction(date.today)
+    estado = EstadoPedido.PENDIENTE
+    subtotal = 50.0
+    impuestos = 9.5
+    total = 59.5
+    preventista = SubFactory(PreventistaFactory)
+
+class DetallePedidoFactory(BaseFactory):
+    class Meta:
+        model = DetallePedidoModel
+    
+    pedido = SubFactory(PedidoFactory)
+    producto = SubFactory(ProductoFactory)
+    cantidad = 5.0
+    precio_unitario = 10.0
+    subtotal_linea = 50.0
+    iva_porcentaje = 0.19
+    iva_valor = 9.5
+    total_linea = 59.5
+
