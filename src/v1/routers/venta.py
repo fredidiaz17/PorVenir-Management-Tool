@@ -6,6 +6,7 @@ from sqlalchemy import select
 from src.database.db_conn import get_bd
 
 from src.v1.schemas.venta import Venta, VentaPatch
+from src.v1.schemas.detalle_venta import CreateDetalleVenta
 from src.v1.schemas.enums import MedioPago
 
 from src.models.venta import VentaModel
@@ -85,8 +86,10 @@ def create_venta(venta: Venta, db: Session = Depends(get_bd)):
             new_detalle = DetalleVentaModel(**detalle)
             db.add(new_detalle)
             db.flush()
-        
-        updated = update_stock(detalles_venta, db)
+
+        detalles = [CreateDetalleVenta.model_validate(detalle).model_dump() for detalle in detalles_venta]
+
+        updated = update_stock(detalles, db)
         if not updated: 
             raise HTTPException(status_code=400, detail={"status": "error", "message": "Ha ocurrido un error durante la actualización del stock"})
         
@@ -126,10 +129,12 @@ def anular_venta(id_venta: int, db: Session = Depends(get_bd)):
         query_venta = db.execute(stmt).scalar_one_or_none()
         
         if not query_venta:
-            raise HTTPException(status_code=404, detail={"status": "error", "message": "Venta no encontrada"}) 
+            raise HTTPException(status_code=404, detail={"status": "error", "message": "Venta no encontrada"})
+
+        detalles = [CreateDetalleVenta.model_validate(detalle).model_dump() for detalle in query_venta.detalle_venta]
         
         # Regresar stock
-        updated = return_stock(query_venta.detalle_venta, db)
+        updated = return_stock(detalles, db)
         if not updated: 
             raise HTTPException(status_code=400, detail={"status": "error", "message": "Ha ocurrido un error durante la anulación de la venta"})
         

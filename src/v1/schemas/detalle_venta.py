@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 class BaseDetalleVenta(BaseModel):
     cantidad: float 
@@ -6,6 +6,9 @@ class BaseDetalleVenta(BaseModel):
     descuento_manual: float | None = 0.0
     subtotal: float
 
+    # Para convertir modelo ORM a dict
+    model_config = ConfigDict(from_attributes= True)
+    
 class CreateDetalleVenta(BaseDetalleVenta):
     id_producto: int
 
