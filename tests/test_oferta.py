@@ -69,3 +69,80 @@ def test_delete_oferta(client, setup_oferta):
     resp = client.get(f"/api/v1/oferta/{setup_oferta["oferta"].id_oferta}")
     assert resp.status_code == 404
 
+
+def test_vinculacion_desvinculacion_producto(client, setup_oferta):
+    o = setup_oferta["oferta"]
+    p = setup_oferta["producto"]
+    # Vincular
+    resp = client.post(f"/api/v1/oferta/vinculacion/Producto/{p.id_producto}/Oferta/{o.id_oferta}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+    # Ver vinculación
+    resp = client.get(f"/api/v1/oferta/{o.id_oferta}/productos")
+    assert resp.status_code == 200
+    assert any(prod["id_producto"] == p.id_producto for prod in resp.json()["data"])
+
+    # Desvincular
+    resp = client.delete(f"/api/v1/oferta/desvinculacion/Producto/{p.id_producto}/Oferta/{o.id_oferta}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+
+def test_vinculacion_desvinculacion_compania(client, setup_oferta):
+    o = setup_oferta["oferta"]
+    c = setup_oferta["compania"]
+    # Vincular
+    resp = client.post(f"/api/v1/oferta/vinculacion/Compania/{c.id_compania}/Oferta/{o.id_oferta}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+    # Ver vinculación
+    resp = client.get(f"/api/v1/oferta/{o.id_oferta}/companias")
+    assert resp.status_code == 200
+    assert any(comp["id_compania"] == c.id_compania for comp in resp.json()["data"])
+
+    # Desvincular
+    resp = client.delete(f"/api/v1/oferta/desvinculacion/Compania/{c.id_compania}/Oferta/{o.id_oferta}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+
+def test_vinculacion_desvinculacion_etiqueta(client, setup_oferta):
+    o = setup_oferta["oferta"]
+    e = setup_oferta["etiqueta"]
+    # Vincular
+    resp = client.post(f"/api/v1/oferta/vinculacion/Etiqueta/{e.id_etiqueta}/Oferta/{o.id_oferta}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+    # Ver vinculación
+    resp = client.get(f"/api/v1/oferta/{o.id_oferta}/etiquetas")
+    assert resp.status_code == 200
+    assert any(etiq["id_etiqueta"] == e.id_etiqueta for etiq in resp.json()["data"])
+
+    # Desvincular
+    resp = client.delete(f"/api/v1/oferta/desvinculacion/Etiqueta/{e.id_etiqueta}/Oferta/{o.id_oferta}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+
+def test_vinculacion_desvinculacion_marca(client, setup_oferta):
+    o = setup_oferta["oferta"]
+    m = setup_oferta["marca"]
+    # Vincular
+    resp = client.post(f"/api/v1/oferta/vinculacion/Marca/{m.id_marca}/Oferta/{o.id_oferta}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+    # Ver vinculación
+    resp = client.get(f"/api/v1/oferta/{o.id_oferta}/marcas")
+    assert resp.status_code == 200
+    assert any(mar["id_marca"] == m.id_marca for mar in resp.json()["data"])
+
+    # Desvincular
+    resp = client.delete(f"/api/v1/oferta/desvinculacion/Marca/{m.id_marca}/Oferta/{o.id_oferta}")
+    assert resp.status_code == 200
+    assert resp.json()["status"] == "ok"
+
+

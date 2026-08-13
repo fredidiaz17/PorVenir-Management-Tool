@@ -5,7 +5,7 @@ from sqlalchemy import create_engine # Motor que establecerá la conexión con l
 from sqlalchemy.orm import sessionmaker # Creador de sesiones que se usarán para interactuar con la BD 
 from sqlalchemy.pool import StaticPool # Pool de conexiones estático que mantendrá abiertas algunas conexiones a la BD
 
-from tests.factories import TestSession, BaseFactory, CompaniaFactory, MarcaFactory, ProductoFactory, EtiquetaFactory, PreventistaFactory, ProductoEtiquetaFactory, OfertaFactory, PedidoFactory, DetallePedidoFactory
+from tests.factories import TestSession, BaseFactory, CompaniaFactory, MarcaFactory, ProductoFactory, EtiquetaFactory, PreventistaFactory, ProductoEtiquetaFactory, OfertaFactory, PedidoFactory, DetallePedidoFactory, ClienteFactory, VentaFactory, DetalleVentaFactory, DeudaFactory
 from src.main import app
 from src.database.db_conn import Base, get_bd
 
@@ -149,7 +149,11 @@ def setup_producto_etiqueta():
 @pytest.fixture(scope="module")
 def setup_oferta():
     oferta = OfertaFactory()
-    return {"oferta": oferta}
+    compania = CompaniaFactory()
+    marca = MarcaFactory(compania=compania)
+    producto = ProductoFactory(marca = marca)
+    etiqueta = EtiquetaFactory()
+    return {"oferta": oferta, "marca": marca, "compania": compania, "producto": producto, "etiqueta": etiqueta}
 
 @pytest.fixture(scope="module")
 def setup_pedido():
@@ -158,3 +162,22 @@ def setup_pedido():
     producto = ProductoFactory()
     detalle_pedido = DetallePedidoFactory(pedido=pedido, producto=producto)
     return {"preventista": preventista, "pedido": pedido, "detalle_pedido": detalle_pedido, "producto": producto}
+
+@pytest.fixture(scope="module")
+def setup_cliente():
+    cliente = ClienteFactory()
+    return {"cliente": cliente}
+
+@pytest.fixture(scope="module")
+def setup_venta():
+    cliente = ClienteFactory()
+    venta = VentaFactory(cliente=cliente)
+    producto = ProductoFactory()
+    detalle_venta = DetalleVentaFactory(venta=venta, producto=producto)
+    return {"cliente": cliente, "venta": venta, "producto": producto, "detalle_venta": detalle_venta}
+
+@pytest.fixture(scope="module")
+def setup_deuda():
+    cliente = ClienteFactory()
+    deuda = DeudaFactory(cliente=cliente)
+    return {"cliente": cliente, "deuda": deuda}

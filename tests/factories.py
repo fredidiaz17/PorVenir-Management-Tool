@@ -1,5 +1,5 @@
 from sqlalchemy.orm import scoped_session, sessionmaker
-from src.v1.schemas.enums import UnidadMedida, TipoOferta, EstadoOferta, EstadoPedido
+from src.v1.schemas.enums import UnidadMedida, TipoOferta, EstadoOferta, EstadoPedido, MedioPago
 from factory import alchemy, SubFactory, LazyFunction
 from faker import Faker
 from datetime import datetime, date
@@ -108,4 +108,40 @@ class DetallePedidoFactory(BaseFactory):
     iva_porcentaje = 0.19
     iva_valor = 9.5
     total_linea = 59.5
+
+class ClienteFactory(BaseFactory):
+    class Meta:
+        model = ClienteModel
+    
+    nombre = LazyFunction(lambda: fake.name())
+    telefono = LazyFunction(lambda: fake.bothify(text='#########'))
+
+class VentaFactory(BaseFactory):
+    class Meta:
+        model = VentaModel
+    
+    fecha = LazyFunction(date.today)
+    medio_pago = MedioPago.EFECTIVO
+    total = 100.0
+    cliente = SubFactory(ClienteFactory)
+
+class DetalleVentaFactory(BaseFactory):
+    class Meta:
+        model = DetalleVentaModel
+    
+    venta = SubFactory(VentaFactory)
+    producto = SubFactory(ProductoFactory)
+    cantidad = 2.0
+    precio_venta = 50.0
+    descuento_manual = 0.0
+    subtotal = 100.0
+
+class DeudaFactory(BaseFactory):
+    class Meta:
+        model = DeudaModel
+    
+    saldo_pendiente = 100.0
+    estado = True
+    cliente = SubFactory(ClienteFactory)
+
 
