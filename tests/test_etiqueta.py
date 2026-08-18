@@ -5,8 +5,7 @@ def test_create_etiqueta(client, setup_etiqueta):
         "descripcion_etiqueta": "Descripción",
         "color_hex": "#FF5733"
     })
-    assert resp.status_code == 200
-    data = resp.json()
+    data = client.assert_status(resp, 200)
     assert data["status"] == "ok"
 
 def test_get_etiquetas(client, setup_etiqueta):
@@ -18,18 +17,18 @@ def test_get_etiquetas(client, setup_etiqueta):
     nombre_etiqueta = setup_etiqueta["etiqueta"].nombre_etiqueta 
     
     resp = client.get("/api/v1/etiqueta/")
-    assert resp.status_code == 200
-    lst = resp.json()["data"]
-    assert len(lst) >= 2
-    assert any(e["nombre_etiqueta"] == nombre_etiqueta for e in lst)
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
+    assert len(data["data"]) >= 2
+    assert any(e["nombre_etiqueta"] == nombre_etiqueta for e in data["data"])
 
 def test_get_etiqueta(client, setup_etiqueta):
     nombre_etiqueta = setup_etiqueta["etiqueta"].nombre_etiqueta 
     etiqueta_id = setup_etiqueta["etiqueta"].id_etiqueta
 
     resp = client.get(f"/api/v1/etiqueta/{etiqueta_id}")
-    assert resp.status_code == 200
-    assert resp.json()["data"]["nombre_etiqueta"] == nombre_etiqueta
+    data = client.assert_status(resp, 200)
+    assert data["data"]["nombre_etiqueta"] == nombre_etiqueta
 
 
 def test_update_etiqueta(client, setup_etiqueta):
@@ -39,24 +38,24 @@ def test_update_etiqueta(client, setup_etiqueta):
         "descripcion_etiqueta": "Nueva descripción",
         "color_hex": "#123456"
     })
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
 
 def test_patch_etiqueta(client, setup_etiqueta):
     etiqueta_id = setup_etiqueta["etiqueta"].id_etiqueta
     
     resp = client.patch(f"/api/v1/etiqueta/{etiqueta_id}", json={"color_hex": "#ABCDEF"})
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
 
 def test_delete_etiqueta(client, setup_etiqueta):
     etiqueta_id = setup_etiqueta["etiqueta"].id_etiqueta
     resp = client.delete(f"/api/v1/etiqueta/{etiqueta_id}")
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
     # Verify deletion
     resp = client.get(f"/api/v1/etiqueta/{etiqueta_id}")
-    assert resp.status_code == 404
+    client.assert_status(resp, 404)

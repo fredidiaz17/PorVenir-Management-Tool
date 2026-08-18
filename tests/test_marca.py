@@ -7,8 +7,7 @@ def test_create_marca(client, setup_marca): # Se usa el fixture para crear una m
         "descripcion": "A test marca",
         "id_compania": id_compania 
     })
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
 
 
@@ -24,9 +23,7 @@ def test_get_marcas(client, setup_marca):
     
     response = client.get("/api/v1/marca/")
 
-    assert response.status_code == 200
-
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     assert len(data["data"]) >= 2
 
@@ -36,8 +33,7 @@ def test_get_marca(client, setup_marca):
     nombre_marca = setup_marca["marca"].nombre
     
     response = client.get(f"/api/v1/marca/{id_marca}")
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     assert data["data"]["nombre"] == nombre_marca
 
@@ -50,8 +46,7 @@ def test_update_marca(client, setup_marca):
         "descripcion": "Updated description",
         "id_compania": compania_id
     })
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     
     get_response = client.get(f"/api/v1/marca/{marca_id}")
@@ -62,8 +57,7 @@ def test_update_marca_parcial(client, setup_marca):
     response = client.patch(f"/api/v1/marca/{marca_id}", json={
         "nombre": "Patched Marca"
     })
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     
     get_response = client.get(f"/api/v1/marca/{marca_id}")
@@ -72,9 +66,8 @@ def test_update_marca_parcial(client, setup_marca):
 def test_delete_marca(client, setup_marca):
     marca_id = setup_marca["marca"].id_marca
     response = client.delete(f"/api/v1/marca/{marca_id}")
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     
     get_response = client.get(f"/api/v1/marca/{marca_id}")
-    assert get_response.status_code == 404
+    client.assert_status(get_response, 404)

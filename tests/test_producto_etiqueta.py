@@ -5,8 +5,8 @@ def test_create_producto_etiqueta(client, setup_producto_etiqueta, setup_etiquet
         "id_etiqueta":setup_producto_etiqueta["etiqueta_2"].id_etiqueta, # Tocó usar setup_etiqueta para no violar constraint unico de producto_etiqueta
         "estado": "Activo"
         })
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
 def test_get_producto_etiquetas(client, setup_producto_etiqueta):
     resp = client.post("/api/v1/producto_etiqueta/", json={
@@ -17,8 +17,9 @@ def test_get_producto_etiquetas(client, setup_producto_etiqueta):
 
     # Retrieve list
     resp = client.get("/api/v1/producto_etiqueta/")
-    assert resp.status_code == 200
-    lst = resp.json()["data"]
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
+    lst = data["data"]
     assert len(lst) >= 1
 
 def test_get_producto_etiquetas_id(client, setup_producto_etiqueta):
@@ -27,8 +28,9 @@ def test_get_producto_etiquetas_id(client, setup_producto_etiqueta):
 
     # Retrieve specific relation
     resp = client.get(f"/api/v1/producto_etiqueta/{id_producto}/{id_etiqueta}")
-    assert resp.status_code == 200
-    rel = resp.json()["data"]
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
+    rel = data["data"]
     assert rel["id_producto"] == id_producto
     assert rel["id_etiqueta"] == id_etiqueta
 
@@ -42,8 +44,8 @@ def test_put_producto_etiqueta(client, setup_producto_etiqueta):
         "id_etiqueta": id_etiqueta,
         "estado": "Inactivo"
     })
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
 def test_delete_producto_etiqueta(client, setup_producto_etiqueta):
     id_producto = setup_producto_etiqueta["producto"].id_producto
@@ -51,10 +53,10 @@ def test_delete_producto_etiqueta(client, setup_producto_etiqueta):
     
     # Delete relation
     resp = client.delete(f"/api/v1/producto_etiqueta/{id_producto}/{id_etiqueta}")
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
     # Verify deletion
     resp = client.get(f"/api/v1/producto_etiqueta/{id_producto}/{id_etiqueta}")
-    assert resp.status_code == 404
+    client.assert_status(resp, 404)
 

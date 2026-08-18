@@ -20,23 +20,23 @@ def test_create_pedido(client, setup_pedido):
             }
         ]
     })
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
 
 
 def test_get_pedidos(client, setup_pedido):
     resp = client.get("/api/v1/pedido/")
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
-    assert len(resp.json()["data"]) > 0
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
+    assert len(data["data"]) > 0
 
 
 def test_get_pedido(client, setup_pedido):
     id_pedido = setup_pedido["pedido"].id_pedido
     resp = client.get(f"/api/v1/pedido/{id_pedido}")
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
 
 def test_update_pedido(client, setup_pedido):
@@ -62,24 +62,22 @@ def test_update_pedido(client, setup_pedido):
             }
         ]
     })
-    print(resp.json())
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
 def test_patch_pedido(client, setup_pedido):
     id_pedido = setup_pedido["pedido"].id_pedido
     resp = client.patch(f"/api/v1/pedido/{id_pedido}", json={
         "estado": "Recibido"
     })
-    print(resp.json())
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
 def test_delete_pedido(client, setup_pedido):
     id_pedido = setup_pedido["pedido"].id_pedido
     resp = client.delete(f"/api/v1/pedido/{id_pedido}")
-    assert resp.status_code == 200
-    assert resp.json()["status"] == "ok"
+    data = client.assert_status(resp, 200)
+    assert data["status"] == "ok"
 
     resp = client.get(f"/api/v1/pedido/{id_pedido}")
-    assert resp.status_code == 404
+    client.assert_status(resp, 404)

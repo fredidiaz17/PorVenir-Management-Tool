@@ -10,8 +10,7 @@ def test_create_producto(client, setup_producto):
         "porcentaje_iva": 0.19
     })
     
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)  
     assert data["status"] == "ok"
 
 def test_get_productos(client, setup_producto):
@@ -27,8 +26,7 @@ def test_get_productos(client, setup_producto):
     })
 
     response = client.get("/api/v1/producto/")
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     assert len(data["data"]) >= 2
 
@@ -36,8 +34,7 @@ def test_get_producto_by_id(client, setup_producto):
     id_producto = setup_producto["producto"].id_producto
     nombre_producto = setup_producto["producto"].nombre
     response = client.get(f"/api/v1/producto/{id_producto}")
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     assert data["data"]["nombre"] == nombre_producto
 
@@ -52,12 +49,13 @@ def test_update_producto(client, setup_producto):
         "unidad_medida": "Unidades",
         "porcentaje_iva": 0.21
     })
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     
     get_response = client.get(f"/api/v1/producto/{id_producto}")
-    assert get_response.json()["data"]["nombre"] == "Updated Producto"
+    data = client.assert_status(get_response, 200)
+    assert data["status"] == "ok"
+    assert data["data"]["nombre"] == "Updated Producto"
 
 def test_update_producto_parcial(client, setup_producto):
     id_producto = setup_producto["producto"].id_producto    
@@ -65,20 +63,20 @@ def test_update_producto_parcial(client, setup_producto):
         "nombre": "Parcial Update",
         "precio_venta": 20.0
     })
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     
     get_response = client.get(f"/api/v1/producto/{id_producto}")
-    assert get_response.json()["data"]["precio_venta"] == 20.0
-    assert get_response.json()["data"]["nombre"] == "Parcial Update"
+    data = client.assert_status(get_response, 200)
+    assert data["status"] == "ok"
+    assert data["data"]["precio_venta"] == 20.0
+    assert data["data"]["nombre"] == "Parcial Update"
 
 def test_delete_producto(client, setup_producto):
     id_producto = setup_producto["producto"].id_producto    
     response = client.delete(f"/api/v1/producto/{id_producto}")
-    assert response.status_code == 200
-    data = response.json()
+    data = client.assert_status(response, 200)
     assert data["status"] == "ok"
     
     get_response = client.get(f"/api/v1/producto/{id_producto}")
-    assert get_response.status_code == 404
+    client.assert_status(get_response, 404)

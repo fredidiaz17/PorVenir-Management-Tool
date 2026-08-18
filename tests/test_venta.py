@@ -55,7 +55,6 @@ def test_get_venta(client, setup_venta):
 def test_anular_venta(client, setup_venta):
     v = setup_venta["venta"]
     resp = client.post(f"/api/v1/venta/{v.id_venta}/anular")
-    print(resp.json())
     assert resp.status_code == 200
     assert resp.json()["status"] == "ok"
 

@@ -104,8 +104,16 @@ def override_db(db_session):
     
 
 @pytest.fixture # Fixture que crea un cliente de prueba. Necesario para interactuar con la API
-def client(): 
+def client():
+    def _assert_status(response, expected_status: int):
+        assert response.status_code == expected_status, (
+            f"\nStatus esperado: {expected_status}"
+            f"\nStatus obtenido: {response.status_code}"
+            f"\nRespuesta del Server (detail): {response.json().get('detail')}"
+        )
+        return response.json()
     with TestClient(app) as c:
+        c.assert_status = _assert_status
         yield c # Proporciona el cliente a la prueba
 
 # Fixtures de creación de datos
