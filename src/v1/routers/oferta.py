@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, selectinload
 from sqlalchemy import select
 from src.database.db_conn import get_bd
 from src.v1.schemas.oferta import Oferta, OfertaPatch
@@ -16,7 +16,12 @@ def get_ofertas(db: Session = Depends(get_bd)):
 
 @router.get("/{id_oferta}")
 def get_oferta(id_oferta: int, db: Session = Depends(get_bd)):
-    stmt = select(OfertaModel).where(OfertaModel.id_oferta == id_oferta)
+    stmt = select(OfertaModel).where(OfertaModel.id_oferta == id_oferta).options(
+        selectinload(OfertaModel.productos),
+        selectinload(OfertaModel.companias),
+        selectinload(OfertaModel.etiquetas),
+        selectinload(OfertaModel.marcas)
+    )
     result = db.execute(stmt).scalar_one_or_none()
     if result is None: 
         raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
@@ -219,4 +224,47 @@ def desvincular_marca_oferta(id_oferta: int, id_marca: int, db: Session = Depend
         db.refresh(query_oferta)
         return {"status": "ok", "message": "Marca desvinculada exitosamente"} 
     except Exception as e:
-        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)}) 
+        raise HTTPException(status_code=400, detail={"status": "error", "message": str(e), "origin": getattr(e, "orig", None)})
+
+
+# Listados de vinculaciones
+
+@router.get("/{id_oferta}/productos")
+def get_productos_oferta(id_oferta: int, db: Session = Depends(get_bd)):
+    stmt = select(OfertaModel).where(OfertaModel.id_oferta == id_oferta).options(
+        selectinload(OfertaModel.productos)
+    )
+    result = db.execute(stmt).scalar_one_or_none()
+    if result is None: 
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
+    return {"status": "ok", "data": result.productos}
+
+@router.get("/{id_oferta}/companias")
+def get_companias_oferta(id_oferta: int, db: Session = Depends(get_bd)):
+    stmt = select(OfertaModel).where(OfertaModel.id_oferta == id_oferta).options(
+        selectinload(OfertaModel.companias)
+    )
+    result = db.execute(stmt).scalar_one_or_none()
+    if result is None: 
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
+    return {"status": "ok", "data": result.companias}
+
+@router.get("/{id_oferta}/etiquetas")
+def get_etiquetas_oferta(id_oferta: int, db: Session = Depends(get_bd)):
+    stmt = select(OfertaModel).where(OfertaModel.id_oferta == id_oferta).options(
+        selectinload(OfertaModel.etiquetas)
+    )
+    result = db.execute(stmt).scalar_one_or_none()
+    if result is None: 
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
+    return {"status": "ok", "data": result.etiquetas}
+
+@router.get("/{id_oferta}/marcas")
+def get_marcas_oferta(id_oferta: int, db: Session = Depends(get_bd)):
+    stmt = select(OfertaModel).where(OfertaModel.id_oferta == id_oferta).options(
+        selectinload(OfertaModel.marcas)
+    )
+    result = db.execute(stmt).scalar_one_or_none()
+    if result is None: 
+        raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
+    return {"status": "ok", "data": result.marcas}
