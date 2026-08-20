@@ -1,6 +1,6 @@
 
 from fastapi import APIRouter, Depends, HTTPException
-from sqlalchemy.orm import Session, selectinload
+from sqlalchemy.orm import Session, joinedload, selectinload
 from sqlalchemy import select
 from src.database.db_conn import get_bd
 from src.v1.schemas.oferta import Oferta, OfertaPatch
@@ -14,15 +14,16 @@ def get_ofertas(db: Session = Depends(get_bd)):
     result = db.execute(stmt).scalars().all()
     return {"status": "ok", "data": result} 
 
+# Obtener oferta Y sus aplicaciones (vinculaciones)
 @router.get("/{id_oferta}")
 def get_oferta(id_oferta: int, db: Session = Depends(get_bd)):
     stmt = select(OfertaModel).where(OfertaModel.id_oferta == id_oferta).options(
-        selectinload(OfertaModel.productos),
-        selectinload(OfertaModel.companias),
-        selectinload(OfertaModel.etiquetas),
-        selectinload(OfertaModel.marcas)
+        joinedload(OfertaModel.productos),
+        joinedload(OfertaModel.companias),
+        joinedload(OfertaModel.etiquetas),
+        joinedload(OfertaModel.marcas)
     )
-    result = db.execute(stmt).scalar_one_or_none()
+    result = db.execute(stmt).unique().scalar_one_or_none()
     if result is None: 
         raise HTTPException(status_code=404, detail={"status": "error", "message": "Oferta no encontrada"})
     return {"status": "ok", "data": result} 
